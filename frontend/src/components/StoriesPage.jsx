@@ -21,14 +21,14 @@ function StoriesPage() {
         <section>
             <div className="container-fluid">
                 <h1 className="mt-5">Stories</h1>
-                <form method="POST" action="/addStory">
+                {/* <form method="POST" action="/addStory">
                     <div className="input-group justify-content-center">
                         <div className="input-group-prepend">
                             <input type="text" name="tweetInput" className="form-control" />
                             <input type="submit" value="Send" className="btn btn-primary mb-2" />
                         </div>
                     </div>
-                </form>
+                </form> */}
 
                 <div className="stories">
                     {

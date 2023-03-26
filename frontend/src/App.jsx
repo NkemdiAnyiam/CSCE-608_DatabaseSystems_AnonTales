@@ -1,15 +1,15 @@
-//import logo from './logo.svg';
-import './App.css';
 import Nav from './components/Nav';
 import Home from './components/Home';
 import StoriesPage from './components/StoriesPage';
 import StoryPage from './components/StoryPage';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 
+import './sass/main.scss';
+
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="app">
           <Nav />
           <Switch>
             <Route path="/" exact component={Home} />
