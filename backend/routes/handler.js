@@ -18,221 +18,256 @@ const {
 } = require('../utils/utilFunctions.js');
 const Reviews = require('../schemas/Reviews.js');
 
+const getSerialNumber = () => {
+    return new Promise((resolve, reject) => {
+        serialNumber((err, serial) => {
+            if (err) reject(err);
+            resolve(serial);
+        })
+    })
+}
+
 router.post('/addUser', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) throw err;
-    
+
             const qry = minifySqlQuery(`
                 INSERT INTO Users(serial_no) VALUES ('${user_serial_no}');
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) throw err;
-                // console.log(result);
+                if (err) {reject(err); return;}
+                console.log(result);
+                resolve(result);
             });
-            
-            res.end();
         });
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
     });
 });
 
 router.get('/stories', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
+    new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) throw err;
-    
-            try {
-                const qry = minifySqlQuery(`
-                    SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date
-                    FROM (
-                        SELECT Stories.story_id, GROUP_CONCAT(genre_name) AS genre_names
-                        FROM Stories LEFT JOIN FallsUnder ON (Stories.story_id = FallsUnder.story_id)
-                        GROUP BY story_id
-                        ORDER BY title
-                    ) AS result NATURAL JOIN Stories LEFT JOIN Rated ON Stories.story_id = Rated.story_id
-                    GROUP BY story_id;
-                `);
-                conn.query(qry, (err, result) => {
-                    conn.release();
-                    if (err) throw err;
-                    res.send(JSON.stringify(result));
-                });
-            } catch (err) {
-                console.log(err);
-                res.end();
-            }
+
+            const qry = minifySqlQuery(`
+                SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date
+                FROM (
+                    SELECT Stories.story_id, GROUP_CONCAT(genre_name) AS genre_names
+                    FROM Stories LEFT JOIN FallsUnder ON (Stories.story_id = FallsUnder.story_id)
+                    GROUP BY story_id
+                    ORDER BY title
+                ) AS result NATURAL JOIN Stories LEFT JOIN Rated ON Stories.story_id = Rated.story_id
+                GROUP BY story_id;
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) {reject(err); return;}
+                resolve(result);
+            });
         });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
     });
 });
 
 router.get('/story', async (req, res) => {
     const {story_id} = req.query;
-    serialNumber((err, user_serial_no) => {
+    new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) throw err;
-    
-            try {
-                const qry = minifySqlQuery(`
-                    SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date
-                    FROM (
-                        SELECT Story.story_id, GROUP_CONCAT(genre_name) AS genre_names
-                        FROM
-                            (
-                                SELECT story_id
-                                FROM Stories
-                                WHERE story_id = '${story_id}'
-                            ) AS Story LEFT JOIN FallsUnder ON (Story.story_id = FallsUnder.story_id)
-                        GROUP BY story_id
-                    ) AS Result NATURAL JOIN Stories LEFT JOIN Rated ON Stories.story_id = Rated.story_id
-                    GROUP BY story_id;
-                `);
-                conn.query(qry, (err, result) => {
-                    conn.release();
-                    if (err) throw err;
-                    // console.log(result);
-                    res.send(JSON.stringify(result));
-                });
-            } catch (err) {
-                console.error('--------ERROR IN /story: ');
-                throw err;
-            }
+
+            const qry = minifySqlQuery(`
+                SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date
+                FROM (
+                    SELECT Story.story_id, GROUP_CONCAT(genre_name) AS genre_names
+                    FROM
+                        (
+                            SELECT story_id
+                            FROM Stories
+                            WHERE story_id = '${story_id}'
+                        ) AS Story LEFT JOIN FallsUnder ON (Story.story_id = FallsUnder.story_id)
+                    GROUP BY story_id
+                ) AS Result NATURAL JOIN Stories LEFT JOIN Rated ON Stories.story_id = Rated.story_id
+                GROUP BY story_id;
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) {reject(err); return;}
+                resolve(result);
+            });
         });
-    });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error('--------ERROR IN /story: ', err);
+        res.status(500).end();
+    });    
 });
 
 router.get('/genres', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
+    new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) throw err;
-    
-            try {
-                const qry = minifySqlQuery(`
-                    SELECT genre_name FROM Genres ORDER BY genre_name;
-                `);
-                conn.query(qry, (err, result) => {
-                    conn.release();
-                    if (err) throw err;
-                    res.send(JSON.stringify(result));
-                });
-            } catch (err) {
-                console.log(err);
-                res.end();
-            }
+
+            const qry = minifySqlQuery(`
+                SELECT genre_name FROM Genres ORDER BY genre_name;
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) {reject(err); return;}
+                resolve(result);
+            });
         });
-    });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });    
 });
 
 router.get('/reviews', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
     const {story_id} = req.query;
-    serialNumber((err, user_serial_no) => {
+    new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) throw err;
-    
-            try {
-                const qry = minifySqlQuery(`
-                    SELECT user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value
-                    FROM (
-                        SELECT user_serial_no, text_content, publish_date
-                        FROM Reviews
-                        WHERE story_id = '${story_id}'
-                    ) AS StoryReviews LEFT JOIN (
-                        SELECT
-                            reviewer_serial_no,
-                            SUM(CASE bin_value WHEN 1 THEN 1 ELSE 0 END) num_thumbs_up,
-                            SUM(CASE bin_value WHEN 0 THEN 1 ELSE 0 END) num_thumbs_down,
-                            SUM(CASE
-                                WHEN user_serial_no = '${user_serial_no}' THEN (
-                                    CASE
-                                    WHEN bin_value = 1 THEN 1
-                                    ELSE 0
-                                    END
-                                )
-                                ELSE NULL
+
+            const qry = minifySqlQuery(`
+                SELECT user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value
+                FROM (
+                    SELECT user_serial_no, text_content, publish_date
+                    FROM Reviews
+                    WHERE story_id = '${story_id}'
+                ) AS StoryReviews LEFT JOIN (
+                    SELECT
+                        reviewer_serial_no,
+                        SUM(CASE bin_value WHEN 1 THEN 1 ELSE 0 END) num_thumbs_up,
+                        SUM(CASE bin_value WHEN 0 THEN 1 ELSE 0 END) num_thumbs_down,
+                        SUM(CASE
+                            WHEN user_serial_no = '${user_serial_no}' THEN (
+                                CASE
+                                WHEN bin_value = 1 THEN 1
+                                ELSE 0
                                 END
-                            ) AS my_thumb_value
-                        FROM Thumbed
-                        WHERE story_id = '${story_id}'
-                        GROUP BY reviewer_serial_no
-                    ) AS StoryReviewsThumbs ON (StoryReviews.user_serial_no = StoryReviewsThumbs.reviewer_serial_no)
-                    ORDER BY publish_date DESC;
-                `);
-                conn.query(qry, (err, result) => {
-                    // console.log(result);
-                    conn.release();
-                    if (err) throw err;
-                    res.send(JSON.stringify(result));
-                });
-            } catch (err) {
-                console.error('--------ERROR IN /reviews: ');
-                throw err;
-            }
+                            )
+                            ELSE NULL
+                            END
+                        ) AS my_thumb_value
+                    FROM Thumbed
+                    WHERE story_id = '${story_id}'
+                    GROUP BY reviewer_serial_no
+                ) AS StoryReviewsThumbs ON (StoryReviews.user_serial_no = StoryReviewsThumbs.reviewer_serial_no)
+                ORDER BY publish_date DESC;
+            `);
+            conn.query(qry, (err, result) => {
+                // console.log(result);
+                conn.release();
+                if (err) throw err;
+                resolve(result);
+            });
         });
-    });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error('--------ERROR IN /reviews: ', err);
+        res.status(500).end();
+    });    
 });
 
 router.post('/addReview', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {   
         try {
             const {reviewFields} = req.body;
             const review = Reviews.create(reviewFields.story_id, user_serial_no, reviewFields.text_content, currentDate());
-    
+
             pool.getConnection( (err, conn) => {
                 if (err) throw err;
 
                 const qry = sqlInsertStatement(Reviews, review);
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) throw err;
+                    if (err) {reject(err); return;}
                     console.log(result);
+                    resolve(result);
                 });
-        
-                res.end();
             });
         }
         catch(err) {
-            console.error('--------ERROR IN /addStory: ');
-            throw err;
+            reject(err);
         }
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
     });
 });
 
 router.get('/prompts', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) throw err;
-    
-            try {
-                const qry = minifySqlQuery(`
-                    SELECT Prompts.prompt_id, Prompts.user_serial_no, GROUP_CONCAT(genre_name) AS genre_names, text_content, publish_date
-                    FROM Prompts LEFT JOIN PromptsGenre ON (Prompts.prompt_id = PromptsGenre.prompt_id)
-                    GROUP BY prompt_id
-                    ORDER BY publish_date DESC
-                `);
-                conn.query(qry, (err, result) => {
-                    conn.release();
-                    if (err) throw err;
-                    res.send(JSON.stringify(result));
-                });
-            } catch (err) {
-                console.log(err);
-                res.end();
-            }
+
+            const qry = minifySqlQuery(`
+                SELECT Prompts.prompt_id, Prompts.user_serial_no, GROUP_CONCAT(genre_name) AS genre_names, text_content, publish_date
+                FROM Prompts LEFT JOIN PromptsGenre ON (Prompts.prompt_id = PromptsGenre.prompt_id)
+                GROUP BY prompt_id
+                ORDER BY publish_date DESC
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) {reject(err); return;}
+                resolve(result);
+            });
         });
-    });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });    
 });
 
 router.post('/addStory', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
         try {
             const {storyFields, genresArray} = req.body;
             const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content, currentDate());
             const fallsUnder = genresArray.map(genreFields => {
                 return FallsUnder.createFrom(story, Genres.create(genreFields.genre_name))
             });
-    
+
             pool.getConnection( (err, conn) => {
                 if (err) throw err;
+                let failState = false;
 
                 conn.beginTransaction((err) => {
                     if (err) {
@@ -241,70 +276,85 @@ router.post('/addStory', async (req, res) => {
                     }
 
                     conn.query(`${sqlInsertStatement(Stories, story)}`, (err, result) => {
-                        if (err) { conn.rollback(() => conn.release()); throw err; }
+                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
                     });
 
                     if (fallsUnder.length > 0)
                     conn.query(`${sqlInsertStatement(FallsUnder, fallsUnder)}`, (err, result) => {
-                        if (err) { conn.rollback(() => conn.release()); throw err; }
+                        if (failState) return;
+                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
                     });
 
-                    conn.commit((err) => {
-                        if (err) { conn.rollback(() => conn.release()); throw err; }
+                    conn.commit((err)=> {
+                        if (failState) return;
+                        if (err) { conn.rollback(() => conn.release()); reject(err); return; }
                         console.log('Story added!');
+                        resolve();
                     });
                 });
-        
-                // res.redirect('/stories');
-                res.end();
             });
         }
         catch(err) {
             console.error('--------ERROR IN /addStory: ');
             throw err;
         }
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
     });
 });
 
 router.post('/addThumb', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
-        try {
-            const {
-                reviewer_serial_no, 
-                story_id,
-                bin_value,
-            } = req.body;
-            const thumbed = Thumbed.create(story_id, reviewer_serial_no, user_serial_no, bin_value);
-    
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
+    try {
+        const {
+            reviewer_serial_no, 
+            story_id,
+            bin_value,
+        } = req.body;
+        const thumbed = Thumbed.create(story_id, reviewer_serial_no, user_serial_no, bin_value);
+
             pool.getConnection( (err, conn) => {
                 if (err) throw err;
-
+    
                 const qry = sqlInsertStatement(Thumbed, thumbed);
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) throw err;
+                    if (err) {reject(err); return;}
                     console.log(result);
+                    resolve(result);
                 });
-
-                res.end();
             });
-        }
-        catch(err) {
-            console.error('--------ERROR IN /addStory: ');
-            throw err;
-        }
+    }
+    catch(err) {
+        console.error('--------ERROR IN /addStory: ');
+        throw err;
+    }
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
     });
 });
 
 router.put('/updateThumb', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
-        try {
-            const {
-                reviewer_serial_no, 
-                story_id,
-                bin_value,
-            } = req.body;
-    
+    const user_serial_no = await getSerialNumber();
+    try {
+        const {
+            reviewer_serial_no, 
+            story_id,
+            bin_value,
+        } = req.body;
+
+        new Promise((resolve, reject) => {
             pool.getConnection( (err, conn) => {
                 if (err) throw err;
 
@@ -315,46 +365,55 @@ router.put('/updateThumb', async (req, res) => {
                 );
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) throw err;
+                    if (err) {reject(err); return;};
                     console.log(result);
+                    resolve(result);
                 });
-
-                res.end();
             });
-        }
-        catch(err) {
-            console.error('--------ERROR IN /updateThumb: ');
-            throw err;
-        }
-    });
+        })
+        .then((result) => {
+            res.end();
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).end();
+        });
+    }
+    catch(err) {
+        console.error('--------ERROR IN /updateThumb: ');
+        throw err;
+    }
 });
 
 router.delete('/deleteThumb', async (req, res) => {
-    serialNumber((err, user_serial_no) => {
-        try {
-            const {
-                story_id,
-                reviewer_serial_no,
-            } = req.body;
-    
-            pool.getConnection( (err, conn) => {
-                if (err) throw err;
+    const user_serial_no = await getSerialNumber();
+    const {
+        story_id,
+        reviewer_serial_no,
+    } = req.body;
 
-                const qry = sqlDeleteStatement(Thumbed, `(story_id, reviewer_serial_no, user_serial_no) = ('${story_id}','${reviewer_serial_no}', '${user_serial_no}')`);
-                conn.query(qry, (err, result) => {
-                    conn.release();
-                    if (err) throw err;
-                    console.log(result);
-                });
-        
-                // res.redirect('/stories');
-                res.end();
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = sqlDeleteStatement(Thumbed, `(story_id, reviewer_serial_no, user_serial_no) = ('${story_id}','${reviewer_serial_no}', '${user_serial_no}')`);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err){reject(err); return;};
+                console.log(result);
+                resolve(result);
             });
-        }
-        catch(err) {
-            console.error('--------ERROR IN /deleteThumb: ');
-            throw err;
-        }
+    
+            // res.redirect('/stories');
+            res.end();
+        });
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
     });
 });
 

@@ -22,7 +22,6 @@ function StoryPage(props) {
       const reviews = await datas[1].json();
       setStory(story);
       setReviews(reviews);
-      console.log(reviews)
   };
 
   const handleWriteReview = (e) => {
@@ -39,8 +38,8 @@ function StoryPage(props) {
     });
 
     fetch('/addReview', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}})
-    .then(() => {
-        history.go(0);
+    .then(({ok}) => {
+        ok && history.go(0);
     })
     .catch(err => {
         console.error(err);

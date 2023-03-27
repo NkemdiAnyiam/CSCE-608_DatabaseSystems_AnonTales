@@ -20,12 +20,10 @@ function Home() {
                 obj.genresArray.push({genre_name: value});
             }
         });
-        console.log(obj);
-        console.log(JSON.stringify(obj))
 
         fetch('/addStory', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}})
-        .then(() => {
-            history.go(0);
+        .then(({ok}) => {
+            ok && history.go(0);
         })
         .catch(err => {
             console.error(err);

@@ -19,7 +19,7 @@ function Review({story_id, my_serial_no, user_serial_no, text_content, publish_d
         }),
         headers:{'Content-Type':'application/json'}}
     );
-    console.log(res);
+    
     res.ok && setMyThumbState(bin_value);
   }
 
