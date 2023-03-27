@@ -14,6 +14,25 @@ const {
     sqlInsertStatement
 } = require('../utils/utilFunctions.js');
 
+router.post('/addUser', async (req, res) => {
+    serialNumber((err, user_serial_no) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+    
+            const qry = minifySqlQuery(`
+                INSERT INTO Users(serial_no) VALUES ('${user_serial_no}');
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) throw err;
+                console.log(result);
+            });
+            
+            res.end();
+        });
+    });
+});
+
 router.get('/stories', async (req, res) => {
     serialNumber((err, user_serial_no) => {
         pool.getConnection( (err, conn) => {
@@ -33,7 +52,6 @@ router.get('/stories', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) throw err;
-                    console.log(result);
                     res.send(JSON.stringify(result));
                 });
             } catch (err) {
@@ -66,7 +84,29 @@ router.get('/story', async (req, res) => {
                     GROUP BY story_id;
                 `);
                 conn.query(qry, (err, result) => {
+                    conn.release();
+                    if (err) throw err;
                     console.log(result);
+                    res.send(JSON.stringify(result));
+                });
+            } catch (err) {
+                console.error('--------ERROR IN /story: ');
+                throw err;
+            }
+        });
+    });
+});
+
+router.get('/genres', async (req, res) => {
+    serialNumber((err, user_serial_no) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+    
+            try {
+                const qry = minifySqlQuery(`
+                    SELECT genre_name FROM Genres ORDER BY genre_name;
+                `);
+                conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) throw err;
                     res.send(JSON.stringify(result));
@@ -100,7 +140,8 @@ router.get('/reviews', async (req, res) => {
                         FROM Thumbed
                         WHERE story_id = '${story_id}'
                         GROUP BY reviewer_serial_no
-                    ) AS StoryReviewsThumbs ON (StoryReviews.user_serial_no = StoryReviewsThumbs.reviewer_serial_no);
+                    ) AS StoryReviewsThumbs ON (StoryReviews.user_serial_no = StoryReviewsThumbs.reviewer_serial_no)
+                    ORDER BY publish_date DESC;
                 `);
                 conn.query(qry, (err, result) => {
                     console.log(result);
@@ -109,8 +150,8 @@ router.get('/reviews', async (req, res) => {
                     res.send(JSON.stringify(result));
                 });
             } catch (err) {
-                console.log(err);
-                res.end();
+                console.error('--------ERROR IN /reviews: ');
+                throw err;
             }
         });
     });
@@ -118,31 +159,45 @@ router.get('/reviews', async (req, res) => {
 
 router.post('/addStory', async (req, res) => {
     serialNumber((err, user_serial_no) => {
-        const {storyFields, genresArray} = req.body;
-        const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content, currentDate());
-        const fallsUnder = genresArray.map(genreFields => {
-            return FallsUnder.createFrom(story, Genres.create(genreFields.genre_name))
-        });
-    
-        pool.getConnection( (err, conn) => {
-            if (err) throw err;
-    
-            const qry = `
-                START TRANSACTION;
-                    ${sqlInsertStatement(Stories, story)}
-                    ${sqlInsertStatement(FallsUnder, fallsUnder)}
-                COMMIT;
-            `;
-            conn.query(qry, (err, result) => {
-                conn.release();
-                if (err) throw err;
-                console.log('Story added!');
+        try {
+            const {storyFields, genresArray} = req.body;
+            const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content, currentDate());
+            const fallsUnder = genresArray.map(genreFields => {
+                return FallsUnder.createFrom(story, Genres.create(genreFields.genre_name))
             });
     
-            res.redirect('/stories');
-            res.end();
-        });
+            pool.getConnection( (err, conn) => {
+                if (err) throw err;
 
+                conn.beginTransaction((err) => {
+                    if (err) {
+                        conn.release();
+                        throw err;
+                    }
+
+                    conn.query(`${sqlInsertStatement(Stories, story)}`, (err, result) => {
+                        if (err) { conn.rollback(() => conn.release()); throw err; }
+                    });
+
+                    if (fallsUnder.length > 0)
+                    conn.query(`${sqlInsertStatement(FallsUnder, fallsUnder)}`, (err, result) => {
+                        if (err) { conn.rollback(() => conn.release()); throw err; }
+                    });
+
+                    conn.commit((err) => {
+                        if (err) { conn.rollback(() => conn.release()); throw err; }
+                        console.log('Story added!');
+                    });
+                });
+        
+                // res.redirect('/stories');
+                res.end();
+            });
+        }
+        catch(err) {
+            console.error('--------ERROR IN /addStory: ');
+            throw err;
+        }
     });
 });
 
