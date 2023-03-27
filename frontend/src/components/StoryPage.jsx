@@ -5,11 +5,10 @@ import Story from './Story';
 
 function StoryPage(props) {
   useEffect( () => {
-    console.log(props.story_id)
       fetchItems();
   }, []);
 
-  const [stories, setStories] = useState([]);
+  const [story, setStory] = useState([]);
   const [reviews, setReviews] = useState([]);
 
   const fetchItems = async () => {
@@ -17,11 +16,9 @@ function StoryPage(props) {
         [fetch('/story'    +`?story_id=${props.story_id}`),
         fetch('/reviews'  +`?story_id=${props.story_id}`)]
       );
-      const stories = await datas[0].json();
+      const story = (await datas[0].json())[0];
       const reviews = await datas[1].json();
-      console.log(stories);
-      console.log(reviews);
-      setStories(stories);
+      setStory(story);
       setReviews(reviews);
   };
 
@@ -29,7 +26,7 @@ function StoryPage(props) {
         <section className="story-page">
             <div className="container-fluid">
                 <section className="section--story">
-                    <Story {...stories[0]} />
+                    {story && <Story {...story} />}
                 </section>
 
                 <section className="section--reviews">
@@ -38,7 +35,7 @@ function StoryPage(props) {
                     reviews.map((item) => (
                       <React.Fragment key={item.user_serial_no}>
                         <Review {...item} />
-                      </React.Fragment>   
+                      </React.Fragment>
                     ))
                   }
                   </div>

@@ -1,5 +1,12 @@
-.stories {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.stories-page {
+  .stories {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .genres {
+    display: flex;
+    flex-direction: column;
+  }
 }
