@@ -1,12 +1,80 @@
 import React, {useState, useEffect} from 'react';
-import { Link } from 'react-router-dom';
 
-function Review({user_serial_number, text_content, publish_date, num_thumbs_up, num_thumbs_down}) {
+function Review({story_id, my_serial_no, user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value}) {
+  useEffect(() => {
+
+  }, [])
+
+  const [myThumbState, setMyThumbState] = useState(my_thumb_value);
+
+  const addThumb = async (bin_value) => {
+    await fetch(
+      '/addThumb',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          reviewer_serial_no: user_serial_no,
+          story_id,
+          bin_value: bin_value
+        }),
+        headers:{'Content-Type':'application/json'}}
+    );
+    setMyThumbState(bin_value);
+  }
+
+  const updateThumb = async (bin_value) => {
+    await fetch(
+      '/updateThumb',
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          reviewer_serial_no: user_serial_no,
+          story_id,
+          bin_value: bin_value
+        }),
+        headers:{'Content-Type':'application/json'}}
+    );
+    setMyThumbState(bin_value);
+  }
+
+  const deleteThumb = async () => {
+    await fetch('/deleteThumb', {
+      method: 'DELETE',
+      body: JSON.stringify({
+          reviewer_serial_no: user_serial_no,
+          story_id,
+      }),
+      headers:{'Content-Type':'application/json'}
+    });
+    setMyThumbState(null);
+  }
+
   return(
     <div className="review">
         <div>{new Date(publish_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
         <div>{text_content}</div>
-        <div><span>{num_thumbs_up}</span> <span>{num_thumbs_down}</span></div>
+        <div><span>{num_thumbs_up + myThumbState ?? 0}</span> <span>{num_thumbs_down + (1 - (myThumbState ?? 1))}</span></div>
+        
+        {
+          my_serial_no !== user_serial_no &&
+          <>
+            <button onClick={() => {
+              if (myThumbState === null) { addThumb(1); }
+              else if (myThumbState === 1) { deleteThumb(); }
+              else { updateThumb(1) }
+            }}>
+              LIKE
+            </button>---
+
+            <button onClick={() => {
+              if (myThumbState === null) { addThumb(0); }
+              else if (myThumbState === 0) { deleteThumb(); }
+              else { updateThumb(0); }
+            }}>
+              DISLIKE
+            </button>
+          </>
+        }
     </div>
   );
 }
