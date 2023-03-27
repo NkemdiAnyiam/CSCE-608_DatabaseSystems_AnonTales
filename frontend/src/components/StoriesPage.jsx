@@ -18,7 +18,7 @@ function StoriesPage() {
         fetch('/genres')]
     );
     const stories = await datas[0].json();
-    console.log(stories)
+    // console.log(stories)
     const genres = await datas[1].json();
     setStories(stories);
     setGenres(genres);
@@ -35,7 +35,7 @@ function StoriesPage() {
         <section className="stories-page">
             <div className="container-fluid">
                 <h1 className="mt-5">Stories</h1>
-                <form method="POST" action="/addStory" onChange={handleGenreFilterChange}>
+                <form onChange={handleGenreFilterChange}>
                     <fieldset>
                         <legend>Genres</legend>
                         <details className="genres-dropdown">
