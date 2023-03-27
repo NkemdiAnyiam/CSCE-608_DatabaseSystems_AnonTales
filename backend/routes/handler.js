@@ -27,6 +27,11 @@ const getSerialNumber = () => {
     })
 }
 
+router.get('/serialNo', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    res.send(JSON.stringify({serial_no: user_serial_no}));
+});
+
 router.post('/addUser', async (req, res) => {
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
@@ -39,7 +44,8 @@ router.post('/addUser', async (req, res) => {
             conn.query(qry, (err, result) => {
                 conn.release();
                 if (err) {reject(err); return;}
-                console.log(result);
+                // console.log(result);
+                console.log('New user addeed');
                 resolve(result);
             });
         });
@@ -209,7 +215,7 @@ router.post('/addReview', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) {reject(err); return;}
-                    console.log(result);
+                    console.log('New review added');
                     resolve(result);
                 });
             });
@@ -288,7 +294,7 @@ router.post('/addStory', async (req, res) => {
                     conn.commit((err)=> {
                         if (failState) return;
                         if (err) { conn.rollback(() => conn.release()); reject(err); return; }
-                        console.log('Story added!');
+                        console.log('Story added');
                         resolve();
                     });
                 });
@@ -326,7 +332,7 @@ router.post('/addThumb', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) {reject(err); return;}
-                    console.log(result);
+                    console.log(`Thumb ${bin_value === 1 ? 'up' : 'down'} added`);
                     resolve(result);
                 });
             });
@@ -366,7 +372,7 @@ router.put('/updateThumb', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) {reject(err); return;};
-                    console.log(result);
+                    console.log('Thumb updated');
                     resolve(result);
                 });
             });
@@ -400,7 +406,7 @@ router.delete('/deleteThumb', async (req, res) => {
             conn.query(qry, (err, result) => {
                 conn.release();
                 if (err){reject(err); return;};
-                console.log(result);
+                console.log('Thumb deleted');
                 resolve(result);
             });
     

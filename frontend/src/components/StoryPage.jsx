@@ -69,7 +69,7 @@ function StoryPage(props) {
                   {
                     reviews.map((item) => (
                       <React.Fragment key={item.user_serial_no}>
-                        <Review {...item} story_id={story.story_id} my_serial_no='TODO: Fill' />
+                        <Review {...item} story_id={story.story_id} />
                       </React.Fragment>
                     ))
                   }

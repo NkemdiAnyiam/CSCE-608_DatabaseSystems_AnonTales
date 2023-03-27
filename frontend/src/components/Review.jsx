@@ -1,9 +1,13 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 
-function Review({story_id, my_serial_no, user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value}) {
+import SerialNoContext from '../contexts/SerialNoContext';
+
+function Review({story_id, user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value}) {
   useEffect(() => {
 
   }, [])
+
+  const mySerialNo = useContext(SerialNoContext);
 
   const [myThumbState, setMyThumbState] = useState(my_thumb_value);
 
@@ -57,7 +61,7 @@ function Review({story_id, my_serial_no, user_serial_no, text_content, publish_d
         <div><span>{num_thumbs_up + myThumbState ?? 0}</span> <span>{num_thumbs_down + (1 - (myThumbState ?? 1))}</span></div>
         
         {
-          my_serial_no !== user_serial_no &&
+          mySerialNo !== user_serial_no &&
           <>
             <button onClick={() => {
               if (myThumbState === null) { addThumb(1); }
