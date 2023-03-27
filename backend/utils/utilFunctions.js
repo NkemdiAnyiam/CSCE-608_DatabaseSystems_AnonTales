@@ -57,6 +57,16 @@ function sqlInsertStatement(schemaClass, insertee) {
   return minifySqlQuery(`INSERT INTO ${relationName}(${columnNames}) VALUES ${array.map(item => toTupleStr(item)).join(', ')};`);
 }
 
+function sqlUpdateStatement(schemaClass, assignment, condition) {
+  const relationName = typeof schemaClass === 'string' ? schemaClass : schemaClass.schemaName;
+  return minifySqlQuery(`UPDATE ${relationName} SET ${assignment} WHERE ${condition};`);
+}
+
+function sqlDeleteStatement(schemaClass, condition) {
+  const relationName = typeof schemaClass === 'string' ? schemaClass : schemaClass.schemaName;
+  return minifySqlQuery(`DELETE FROM ${relationName} WHERE ${condition};`);
+}
+
 function sqlInsert(pool, schemaClass, insertee, chunkSize = 1) {
   const schemaName = typeof schemaClass === 'string' ? schemaClass : schemaClass.schemaName;
   const array = toArray(insertee);
@@ -91,5 +101,7 @@ module.exports = {
   toPropertiesStr,
   minifySqlQuery,
   sqlInsertStatement,
+  sqlUpdateStatement,
+  sqlDeleteStatement,
   sqlInsert
 };
