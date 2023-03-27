@@ -8,7 +8,7 @@ function Review({story_id, my_serial_no, user_serial_no, text_content, publish_d
   const [myThumbState, setMyThumbState] = useState(my_thumb_value);
 
   const addThumb = async (bin_value) => {
-    await fetch(
+    const res = await fetch(
       '/addThumb',
       {
         method: 'POST',
@@ -19,11 +19,12 @@ function Review({story_id, my_serial_no, user_serial_no, text_content, publish_d
         }),
         headers:{'Content-Type':'application/json'}}
     );
-    setMyThumbState(bin_value);
+    console.log(res);
+    res.ok && setMyThumbState(bin_value);
   }
 
   const updateThumb = async (bin_value) => {
-    await fetch(
+    const res = await fetch(
       '/updateThumb',
       {
         method: 'PUT',
@@ -34,11 +35,11 @@ function Review({story_id, my_serial_no, user_serial_no, text_content, publish_d
         }),
         headers:{'Content-Type':'application/json'}}
     );
-    setMyThumbState(bin_value);
+    res.ok && setMyThumbState(bin_value);
   }
 
   const deleteThumb = async () => {
-    await fetch('/deleteThumb', {
+    const res = await fetch('/deleteThumb', {
       method: 'DELETE',
       body: JSON.stringify({
           reviewer_serial_no: user_serial_no,
@@ -46,7 +47,7 @@ function Review({story_id, my_serial_no, user_serial_no, text_content, publish_d
       }),
       headers:{'Content-Type':'application/json'}
     });
-    setMyThumbState(null);
+    res.ok && setMyThumbState(null);
   }
 
   return(

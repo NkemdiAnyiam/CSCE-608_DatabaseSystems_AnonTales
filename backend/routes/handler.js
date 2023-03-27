@@ -16,6 +16,7 @@ const {
     sqlUpdateStatement,
     sqlDeleteStatement,
 } = require('../utils/utilFunctions.js');
+const Reviews = require('../schemas/Reviews.js');
 
 router.post('/addUser', async (req, res) => {
     serialNumber((err, user_serial_no) => {
@@ -135,13 +136,13 @@ router.get('/reviews', async (req, res) => {
                         SELECT user_serial_no, text_content, publish_date
                         FROM Reviews
                         WHERE story_id = '${story_id}'
-                    ) AS StoryReviews JOIN (
+                    ) AS StoryReviews LEFT JOIN (
                         SELECT
                             reviewer_serial_no,
                             SUM(CASE bin_value WHEN 1 THEN 1 ELSE 0 END) num_thumbs_up,
                             SUM(CASE bin_value WHEN 0 THEN 1 ELSE 0 END) num_thumbs_down,
                             SUM(CASE
-                                WHEN user_serial_no = 'PF41JZTN' THEN (
+                                WHEN user_serial_no = '${user_serial_no}' THEN (
                                     CASE
                                     WHEN bin_value = 1 THEN 1
                                     ELSE 0
@@ -167,6 +168,32 @@ router.get('/reviews', async (req, res) => {
                 throw err;
             }
         });
+    });
+});
+
+router.post('/addReview', async (req, res) => {
+    serialNumber((err, user_serial_no) => {
+        try {
+            const {reviewFields} = req.body;
+            const review = Reviews.create(reviewFields.story_id, user_serial_no, reviewFields.text_content, currentDate());
+    
+            pool.getConnection( (err, conn) => {
+                if (err) throw err;
+
+                const qry = sqlInsertStatement(Reviews, review);
+                conn.query(qry, (err, result) => {
+                    conn.release();
+                    if (err) throw err;
+                    console.log(result);
+                });
+        
+                res.end();
+            });
+        }
+        catch(err) {
+            console.error('--------ERROR IN /addStory: ');
+            throw err;
+        }
     });
 });
 
@@ -259,26 +286,6 @@ router.post('/addThumb', async (req, res) => {
                     console.log(result);
                 });
 
-                // conn.beginTransaction((err) => {
-                //     if (err) {
-                //         conn.release();
-                //         throw err;
-                //     }
-
-                //     conn.query(`${sqlDeleteStatement(Thumbed, `story_id = '${story_id}' AND reviewer_serial_no = '${reviewer_serial_no}' AND user_serial_no = '${user_serial_no}'`)}`, (err, result) => {
-                //         if (err) { conn.rollback(() => conn.release()); throw err; }
-                //     });
-
-                //     conn.query(`${sqlInsertStatement(Thumbed, thumbed)}`, (err, result) => {
-                //         if (err) { conn.rollback(() => conn.release()); throw err; }
-                //     });
-
-                //     conn.commit((err) => {
-                //         if (err) { conn.rollback(() => conn.release()); throw err; }
-                //     });
-                // });
-        
-                // res.redirect('/stories');
                 res.end();
             });
         }

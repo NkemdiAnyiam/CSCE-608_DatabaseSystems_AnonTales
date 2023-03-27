@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import { useHistory } from 'react-router-dom';
 
 import Review from './Review';
 import Story from './Story';
@@ -10,6 +11,7 @@ function StoryPage(props) {
 
   const [story, setStory] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const history = useHistory();
 
   const fetchItems = async () => {
       const datas = await Promise.all(
@@ -20,13 +22,47 @@ function StoryPage(props) {
       const reviews = await datas[1].json();
       setStory(story);
       setReviews(reviews);
+      console.log(reviews)
   };
+
+  const handleWriteReview = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const obj = {
+        reviewFields: {story_id: props.story_id},
+    };
+
+    [...formData.entries()].forEach(([key, value]) => {
+        if (key.startsWith('reviewFields.')) {
+            obj.reviewFields[key.slice(key.indexOf('.')+1)] = value;
+        }
+    });
+
+    fetch('/addReview', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}})
+    .then(() => {
+        history.go(0);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+}
 
     return(
         <section className="story-page">
             <div className="container-fluid">
                 <section className="section--story">
                     {story && <Story {...story} />}
+                </section>
+
+                <section className="section--write-review">
+                  <form onSubmit={handleWriteReview}>
+                      <div>
+                          <div>
+                              <textarea name="reviewFields.text_content" />
+                              <button type="submit">Submit</button>
+                          </div>
+                      </div>
+                  </form>
                 </section>
 
                 <section className="section--reviews">
