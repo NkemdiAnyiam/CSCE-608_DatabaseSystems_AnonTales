@@ -4,11 +4,13 @@ const pool =  require('../config/db.js');
 const serialNumber = require('serial-number');
 const { v4: uuidv4 } = require('uuid');
 
+const Users = require('../schemas/Users.js');
 const Stories = require('../schemas/Stories.js');
+const Reviews = require('../schemas/Reviews.js');
 const Prompts = require('../schemas/Prompts.js');
+const Genres = require('../schemas/Genres.js');
 const FallsUnder = require('../schemas/FallsUnder.js');
 const PromptsGenre = require('../schemas/PromptsGenre.js');
-const Genres = require('../schemas/Genres.js');
 const Thumbed = require('../schemas/Thumbed.js');
 
 const {
@@ -18,7 +20,6 @@ const {
     sqlUpdateStatement,
     sqlDeleteStatement,
 } = require('../utils/utilFunctions.js');
-const Reviews = require('../schemas/Reviews.js');
 
 const getSerialNumber = () => {
     return new Promise((resolve, reject) => {
@@ -50,6 +51,33 @@ router.post('/addUser', async (req, res) => {
                 console.log('New user addeed');
                 resolve(result);
             });
+        });
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
+
+router.delete('/deleteUser', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = sqlDeleteStatement(Users, `serial_no = '${user_serial_no}'`);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err){reject(err); return;};
+                console.log('User deleted');
+                resolve(result);
+            });
+    
+            // res.redirect('/stories');
+            res.end();
         });
     })
     .then((result) => {

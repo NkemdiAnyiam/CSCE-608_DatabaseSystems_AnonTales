@@ -49,13 +49,23 @@ function Home() {
     const renderUserForm = () => {
         return (
             <form method='POST' action='/addUser' onSubmit={(e) => e.preventDefault()}>
+            {
+                !mySerialNo ?
                 <button 
                     onClick={
                         () => fetch('/addUser', {method: 'POST'})
                             .then(({ok}) => ok && history.go(0))
                     }>
                     ADD SELF
+                </button> :
+                <button 
+                    onClick={
+                        () => fetch('/deleteUser', {method: 'DELETE'})
+                            .then(({ok}) => ok && history.go(0))
+                    }>
+                    DELETE SELF
                 </button>
+            }
             </form>
         );
     }
@@ -125,7 +135,6 @@ function Home() {
             <div className="container-fluid">
                 <h1 className="mt-5">Anon Tales</h1>
                 {
-                    !mySerialNo &&
                     renderUserForm()
                 }
                 {
