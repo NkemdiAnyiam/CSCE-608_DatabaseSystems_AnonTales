@@ -1,6 +1,14 @@
 .story {
   font-size: 1.6rem;
+  line-height: 1;
   color: black;
+
+  &__rating-container {
+    height: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
 
   &__genres {
     display: flex;

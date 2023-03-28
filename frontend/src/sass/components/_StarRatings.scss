@@ -1,0 +1,39 @@
+.star-ratings {
+  height: 100%;
+
+  &.star-ratings--disabled {
+    * {
+      pointer-events: none;
+    }
+  }
+
+  .star-ratings {
+    * {
+      padding: 0 !important;
+      vertical-align: unset !important;
+    }
+
+    height: 100%;
+  
+    display: flex !important;
+    align-items: center;
+    gap: 1rem;
+  
+    .star-container {
+      position: relative;
+      height: 100% !important;
+  
+      display: flex;
+      align-items: center;
+  
+      svg {
+        height: 100% !important;
+        width: auto !important;
+        path {
+          height: 100% !important;
+          display: inline-block;
+        }
+      }
+    }
+  }
+}

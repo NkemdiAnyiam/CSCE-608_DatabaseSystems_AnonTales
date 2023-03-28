@@ -11,6 +11,7 @@ function StoriesPage() {
   const [stories, setStories] = useState([]);
   const [genres, setGenres] = useState([]);
   const [genreFilters, setGenreFilters] = useState([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const fetchItems = async () => {
     const datas = await Promise.all(
@@ -21,6 +22,7 @@ function StoriesPage() {
     const genres = await datas[1].json();
     setStories(stories);
     setGenres(genres);
+    setDataLoaded(true);
   };
 
   const handleGenreFilterChange = (e) => {
@@ -28,6 +30,10 @@ function StoriesPage() {
         { setGenreFilters([...genreFilters, e.target.value].sort((a, b) => a <= b)) }
     else
         { setGenreFilters(genreFilters.filter((genre_name) => genre_name !== e.target.value)) }
+  }
+
+  if (!dataLoaded) {
+    return <div>Loading stories...</div>
   }
 
     return(

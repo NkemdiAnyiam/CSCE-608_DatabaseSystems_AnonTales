@@ -1,10 +1,23 @@
 import React, {useState, useEffect} from 'react';
 
+import StarRatings from './StarRatings';
+
 function Story({story_id, title, avg_rating, genre_names, text_content, publish_date}) {
     return(
       <div className="story">
         <h2>{title}</h2>
-        <div>Rating: {avg_rating ? `${avg_rating}/5 Stars;` : ''}</div>
+        <div className="story__rating-container">
+          <span>Rating:</span>
+          {
+            avg_rating ?
+            <StarRatings
+              rating={avg_rating}
+              name='overall-rating'
+              disabled
+            />:
+            <span>N/A</span>
+          }
+        </div>
         <div>Published on {new Date(publish_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
         {
           genre_names && (

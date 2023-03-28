@@ -11,6 +11,7 @@ function StoryPage(props) {
 
   const [story, setStory] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const history = useHistory();
 
   const fetchItems = async () => {
@@ -22,6 +23,7 @@ function StoryPage(props) {
       const reviews = await datas[1].json();
       setStory(story);
       setReviews(reviews);
+      setDataLoaded(true);
   };
 
   const handleWriteReview = (e) => {
@@ -44,39 +46,45 @@ function StoryPage(props) {
     .catch(err => {
         console.error(err);
     });
-}
+  }
 
-    return(
-        <section className="story-page">
-            <div className="container-fluid">
-                <section className="section--story">
-                    {story && <Story {...story} />}
-                </section>
+  if (!dataLoaded) {
+    return (
+      <div>Loading story...</div>
+    )
+  }
 
-                <section className="section--write-review">
-                  <form onSubmit={handleWriteReview}>
-                    <div className="form-container">
-                        <h2>Write a review</h2>
-                        <textarea name="reviewFields.text_content" />
-                        <button type="submit">Submit</button>
-                    </div>
-                  </form>
-                </section>
+  return(
+      <section className="story-page">
+          <div className="container-fluid">
+              <section className="section--story">
+                  {story && <Story {...story} />}
+              </section>
 
-                <section className="section--reviews">
-                  <div className="reviews">
-                  {
-                    reviews.map((item) => (
-                      <React.Fragment key={item.user_serial_no}>
-                        <Review {...item} story_id={story.story_id} />
-                      </React.Fragment>
-                    ))
-                  }
+              <section className="section--write-review">
+                <form onSubmit={handleWriteReview}>
+                  <div className="form-container">
+                      <h2>Write a review</h2>
+                      <textarea name="reviewFields.text_content" />
+                      <button type="submit">Submit</button>
                   </div>
-                </section>
-            </div>
-        </section>
-    );
+                </form>
+              </section>
+
+              <section className="section--reviews">
+                <div className="reviews">
+                {
+                  reviews.map((item) => (
+                    <React.Fragment key={item.user_serial_no}>
+                      <Review {...item} story_id={story.story_id} />
+                    </React.Fragment>
+                  ))
+                }
+                </div>
+              </section>
+          </div>
+      </section>
+  );
 }
 
 export default StoryPage;
