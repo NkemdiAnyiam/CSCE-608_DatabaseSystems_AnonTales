@@ -28,6 +28,7 @@ const {
     randomInt,
     randomEntry,
     getRandomArrayValue,
+    getRandomTruth,
     sqlInsert
 } = require('./utils/utilFunctions');
 
@@ -89,14 +90,14 @@ function populateDB() {
     
                 // GENERATE RATINGS FOR STORY
                 const numRatings = randomInt(0, 100);
-                // const bias = 
+                const bias = randomInt(1, 5);
                 const invalidRaterSerials = [author.serial_no];
                 for (let i_ratings = 0; i_ratings < numRatings; ++i_ratings) {
                     // GENERATE RATING
                     const raterSerial = getRandomArrayValue(fakeSerialNumbers);
                     if (invalidRaterSerials.includes(raterSerial)) { --i_ratings; continue; }
                     invalidRaterSerials.push(raterSerial);
-                    rated.push(Rated.create(story.story_id, raterSerial, randomInt(1, 5)));
+                    rated.push(Rated.create(story.story_id, raterSerial, getRandomTruth(0.25) ? bias : randomInt(1, 5)));
                 }
     
                 // GENERATE REVIEWS FOR STORY
@@ -119,7 +120,7 @@ function populateDB() {
                         const thumberSerial = getRandomArrayValue(fakeSerialNumbers);
                         if (invalidThumberSerials.includes(thumberSerial)) { --i_thumbs; continue; }
                         invalidThumberSerials.push(thumberSerial);
-                        const bin_value = Math.random() <= percentagePositive ? 1 : 0;
+                        const bin_value = getRandomTruth(percentagePositive) ? 1 : 0;
                         thumbed.push(Thumbed.create(story.story_id, review.user_serial_no, thumberSerial, bin_value));
                     }
                 }

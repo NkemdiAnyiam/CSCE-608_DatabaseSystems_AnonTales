@@ -25,6 +25,10 @@ function getRandomArrayValue(array) {
   return array[randomIndex];
 }
 
+function getRandomTruth(percentRate) {
+  return Math.random() <= percentRate;
+}
+
 function toTupleStr(item) {
   const str = Object.values(item)
       .map(value => {
@@ -97,6 +101,7 @@ module.exports = {
   randomInt,
   randomEntry,
   getRandomArrayValue,
+  getRandomTruth,
   toTupleStr,
   toPropertiesStr,
   minifySqlQuery,
