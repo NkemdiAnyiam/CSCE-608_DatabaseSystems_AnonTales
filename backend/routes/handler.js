@@ -5,7 +5,9 @@ const serialNumber = require('serial-number');
 const { v4: uuidv4 } = require('uuid');
 
 const Stories = require('../schemas/Stories.js');
+const Prompts = require('../schemas/Prompts.js');
 const FallsUnder = require('../schemas/FallsUnder.js');
+const PromptsGenre = require('../schemas/PromptsGenre.js');
 const Genres = require('../schemas/Genres.js');
 const Thumbed = require('../schemas/Thumbed.js');
 
@@ -58,6 +60,33 @@ router.post('/addUser', async (req, res) => {
         res.status(500).end();
     });
 });
+
+router.get('/userExists', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = minifySqlQuery(`
+                SELECT serial_no
+                FROM Users
+                WHERE serial_no = '${user_serial_no}'
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) {reject(err); return;}
+                resolve(result.length > 0);
+            });
+        });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+})
 
 router.get('/stories', async (req, res) => {
     new Promise((resolve, reject) => {
@@ -125,6 +154,60 @@ router.get('/story', async (req, res) => {
         res.status(500).end();
     });    
 });
+
+router.post('/addStory', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
+        try {
+            const {storyFields, genresArray} = req.body;
+            const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content.replace("'", "''"), currentDate());
+            const fallsUnder = genresArray.map(genreFields => {
+                return FallsUnder.createFrom(story, Genres.create(genreFields.genre_name))
+            });
+
+            pool.getConnection( (err, conn) => {
+                if (err) throw err;
+                let failState = false;
+
+                conn.beginTransaction((err) => {
+                    if (err) {
+                        conn.release();
+                        throw err;
+                    }
+
+                    conn.query(`${sqlInsertStatement(Stories, story)}`, (err, result) => {
+                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
+                    });
+
+                    if (fallsUnder.length > 0)
+                    conn.query(`${sqlInsertStatement(FallsUnder, fallsUnder)}`, (err, result) => {
+                        if (failState) return;
+                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
+                    });
+
+                    conn.commit((err)=> {
+                        if (failState) return;
+                        if (err) { conn.rollback(() => conn.release()); reject(err); return; }
+                        console.log('Story added');
+                        resolve();
+                    });
+                });
+            });
+        }
+        catch(err) {
+            console.error('--------ERROR IN /addStory: ');
+            throw err;
+        }
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
+
 
 router.get('/genres', async (req, res) => {
     new Promise((resolve, reject) => {
@@ -206,7 +289,7 @@ router.post('/addReview', async (req, res) => {
     new Promise((resolve, reject) => {   
         try {
             const {reviewFields} = req.body;
-            const review = Reviews.create(reviewFields.story_id, user_serial_no, reviewFields.text_content, currentDate());
+            const review = Reviews.create(reviewFields.story_id, user_serial_no, reviewFields.text_content.replace("'", "''"), currentDate());
 
             pool.getConnection( (err, conn) => {
                 if (err) throw err;
@@ -261,14 +344,14 @@ router.get('/prompts', async (req, res) => {
     });    
 });
 
-router.post('/addStory', async (req, res) => {
+router.post('/addPrompt', async (req, res) => {
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         try {
-            const {storyFields, genresArray} = req.body;
-            const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content, currentDate());
-            const fallsUnder = genresArray.map(genreFields => {
-                return FallsUnder.createFrom(story, Genres.create(genreFields.genre_name))
+            const {promptFields, genresArray} = req.body;
+            const prompt = Prompts.create(uuidv4(), user_serial_no, promptFields.text_content, currentDate());
+            const promptsGenre = genresArray.map(genreFields => {
+                return PromptsGenre.createFrom(prompt, Genres.create(genreFields.genre_name));
             });
 
             pool.getConnection( (err, conn) => {
@@ -281,12 +364,12 @@ router.post('/addStory', async (req, res) => {
                         throw err;
                     }
 
-                    conn.query(`${sqlInsertStatement(Stories, story)}`, (err, result) => {
+                    conn.query(`${sqlInsertStatement(Prompts, prompt)}`, (err, result) => {
                         if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
                     });
 
-                    if (fallsUnder.length > 0)
-                    conn.query(`${sqlInsertStatement(FallsUnder, fallsUnder)}`, (err, result) => {
+                    if (promptsGenre.length > 0)
+                    conn.query(`${sqlInsertStatement(PromptsGenre, promptsGenre)}`, (err, result) => {
                         if (failState) return;
                         if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
                     });
@@ -294,14 +377,14 @@ router.post('/addStory', async (req, res) => {
                     conn.commit((err)=> {
                         if (failState) return;
                         if (err) { conn.rollback(() => conn.release()); reject(err); return; }
-                        console.log('Story added');
+                        console.log('Prompt added');
                         resolve();
                     });
                 });
             });
         }
         catch(err) {
-            console.error('--------ERROR IN /addStory: ');
+            console.error('--------ERROR IN /addPrompt: ');
             throw err;
         }
     })

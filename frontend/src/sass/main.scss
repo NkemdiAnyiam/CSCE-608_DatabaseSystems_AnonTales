@@ -6,8 +6,11 @@
 @import "base/typography";
 @import "base/utilities";
 
+@import "components/Genre";
 @import "components/Prompt";
+@import "components/Review";
 @import "components/Story";
 
+@import "pages/HomePage.scss";
 @import "pages/StoriesPage";
 @import "pages/StoryPage";

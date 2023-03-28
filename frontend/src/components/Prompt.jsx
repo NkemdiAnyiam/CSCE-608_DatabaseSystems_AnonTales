@@ -10,8 +10,7 @@ function Prompt({prompt_id, genre_names, text_content, publish_date}) {
           genre_names && (
           <div>
             {
-              genre_names.split(',').map(genre_name => (<span key={genre_name}>--{genre_name}--</span>))
-            }
+              genre_names.split(',').map(genre_name => (<div className="genre" key={genre_name}>{genre_name}</div>))            }
           </div>
           )
         }

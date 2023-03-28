@@ -1,7 +1,11 @@
-import React from 'react'; // ES6 js
+import React, { useContext } from 'react'; // ES6 js
 import {Link} from 'react-router-dom';
 
+import SerialNoContext from '../contexts/SerialNoContext';
+
 function Nav() {
+    const mySerialNo = useContext(SerialNoContext);
+
     return(
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark top">
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navMainMenu" aria-controls="navMainMenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -12,6 +16,11 @@ function Nav() {
                     <Link to='/' className="nav-item nav-link active">Home</Link>
                     <Link to='/stories' className="nav-item nav-link">Stories</Link>
                     <Link to='/prompts' className="nav-item nav-link">Prompts</Link>
+                    {
+                        mySerialNo &&
+                        <>
+                        </>
+                    }
                 </div>
             </div>
         </nav>

@@ -13,14 +13,16 @@ import './sass/main.scss';
 
 function App() {
   useEffect(async () => {
-    const data = await fetch('/serialNo');
-    const {serial_no} = await data.json();
-    setMySerialNo(serial_no);
+    const {serial_no} = await(await fetch('/serialNo')).json();
+    const userExists = await(await(fetch('userExists'))).json();
+    userExists && setMySerialNo(serial_no);
+    setDataLoaded(true);
   }, []);
 
   const [mySerialNo, setMySerialNo] = useState(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
-  if (!mySerialNo) {
+  if (!dataLoaded) {
     return <div>Loading...</div>
   }
 

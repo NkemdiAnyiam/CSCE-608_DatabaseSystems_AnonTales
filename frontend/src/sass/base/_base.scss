@@ -16,3 +16,47 @@ body {
   font-size: 1.4rem;
   overflow-x: hidden;
 }
+
+form {
+  label {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 50rem;
+  }
+
+  textarea {
+    padding: 0.5rem;
+  }
+
+  .genres-fieldset {
+    width: min-content;
+    details {
+      width: max-content;
+    }
+
+    .genres {
+      display: flex;
+      flex-direction: column;
+
+      label {
+        width: max-content;
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+button {
+  width: max-content;
+  padding: 0.2rem 1rem;
+  cursor: pointer;
+}

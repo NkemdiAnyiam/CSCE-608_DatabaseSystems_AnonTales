@@ -1,0 +1,13 @@
+.home {
+  .section {
+    margin-bottom: 3rem;
+  }
+
+  .form {
+    &.form--add-story {
+      textarea {
+        height: 20rem;
+      }
+    }
+  }
+}

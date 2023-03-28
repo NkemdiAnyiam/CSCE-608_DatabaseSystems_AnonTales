@@ -55,12 +55,11 @@ function StoryPage(props) {
 
                 <section className="section--write-review">
                   <form onSubmit={handleWriteReview}>
-                      <div>
-                          <div>
-                              <textarea name="reviewFields.text_content" />
-                              <button type="submit">Submit</button>
-                          </div>
-                      </div>
+                    <div className="form-container">
+                        <h2>Write a review</h2>
+                        <textarea name="reviewFields.text_content" />
+                        <button type="submit">Submit</button>
+                    </div>
                   </form>
                 </section>
 
