@@ -14,7 +14,7 @@ import './sass/main.scss';
 function App() {
   useEffect(async () => {
     const {serial_no} = await(await fetch('/serialNo')).json();
-    const userExists = await(await(fetch('userExists'))).json();
+    const userExists = await(await(fetch('/userExists'))).json();
     userExists && setMySerialNo(serial_no);
     setDataLoaded(true);
   }, []);
