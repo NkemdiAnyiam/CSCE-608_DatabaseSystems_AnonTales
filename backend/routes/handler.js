@@ -390,8 +390,6 @@ router.post('/addReview', async (req, res) => {
     })
     .then(async (result) => {
         const newReview = (await getReview(result.story_id, user_serial_no))[0];
-        console.log('HERE')
-        console.log(newReview)
         res.send(JSON.stringify(newReview));
     })
     .catch((err) => {

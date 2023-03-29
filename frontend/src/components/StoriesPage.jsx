@@ -26,10 +26,11 @@ function StoriesPage() {
   };
 
   const handleGenreFilterChange = (e) => {
+    const target_genre_name = e.target.value;
     if (e.target.checked)
-        { setGenreFilters([...genreFilters, e.target.value].sort((a, b) => a <= b ? -1 : 1)) }
+        { setGenreFilters([...genreFilters, target_genre_name]) }
     else
-        { setGenreFilters(genreFilters.filter((genre_name) => genre_name !== e.target.value)) }
+        { setGenreFilters([...genreFilters].splice(genreFilters.indexOf(target_genre_name))); }
   }
 
   if (!dataLoaded) {
