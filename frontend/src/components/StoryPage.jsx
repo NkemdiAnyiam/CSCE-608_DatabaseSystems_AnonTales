@@ -1,18 +1,27 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { useHistory } from 'react-router-dom';
 
+import SerialNoContext from '../contexts/SerialNoContext';
+
 import Review from './Review';
+import StarRatings from './StarRatings';
 import Story from './Story';
 
 function StoryPage(props) {
-  useEffect( () => {
-      fetchItems();
-  }, []);
-
-  const [story, setStory] = useState([]);
+  const [story, setStory] = useState(null);
+  const [myRating, setMyRating] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [dataLoaded, setDataLoaded] = useState(false);
   const history = useHistory();
+  const mySerialNo = useContext(SerialNoContext);
+
+  useEffect( () => {
+    fetchItems();
+  }, []);
+
+  useEffect( () => {
+    story && setMyRating(story.my_rating);
+  }, [story]);
 
   const fetchItems = async () => {
       const datas = await Promise.all(
@@ -40,12 +49,42 @@ function StoryPage(props) {
     });
 
     fetch('/addReview', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}})
-    .then(({ok}) => {
-        ok && history.go(0);
-    })
-    .catch(err => {
+      .then(({ok}) => {
+          ok && history.go(0);
+      })
+      .catch(err => {
+          console.error(err);
+      });
+  }
+
+  const handleChangeRating = (rating) => {
+    const obj = {
+      ratingFields: {
+        story_id: story.story_id,
+        rating
+      }
+    }
+    
+    const thing = (prom => {
+      prom.then(async (res) => {
+        if (!res.ok) { return; }
+        const ratingData = await res.json();
+        setStory({...story, ...ratingData});
+      })
+      .catch(err => {
         console.error(err);
+      });
     });
+
+    if (!myRating) {
+      thing(fetch('/addRating', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
+    }
+    else if (rating === myRating) {
+      thing(fetch('/deleteRating', {method: 'DELETE', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
+    }
+    else {
+      thing(fetch('/updateRating', {method: 'PUT', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
+    }
   }
 
   if (!dataLoaded) {
@@ -58,7 +97,15 @@ function StoryPage(props) {
       <section className="story-page">
           <div className="container-fluid">
               <section className="section--story">
-                  {story && <Story {...story} />}
+                <div className="story-container">
+                    <Story {...story} />
+                </div>
+                <div className="stars">
+                  {myRating ? 'Your rating' : 'Rate story?'}
+                  <form>
+                    <StarRatings rating={myRating ?? 0} name="user-star-rating" onChangeRating={handleChangeRating} />
+                  </form>
+                </div>
               </section>
 
               <section className="section--write-review">

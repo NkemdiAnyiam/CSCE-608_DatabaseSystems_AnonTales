@@ -11,6 +11,7 @@ const Prompts = require('../schemas/Prompts.js');
 const Genres = require('../schemas/Genres.js');
 const FallsUnder = require('../schemas/FallsUnder.js');
 const PromptsGenre = require('../schemas/PromptsGenre.js');
+const Rated = require('../schemas/Rated.js');
 const Thumbed = require('../schemas/Thumbed.js');
 
 const {
@@ -147,14 +148,19 @@ router.get('/stories', async (req, res) => {
     });
 });
 
-router.get('/story', async (req, res) => {
-    const {story_id} = req.query;
-    new Promise((resolve, reject) => {
+const getStory = async story_id => {
+    const user_serial_no = await getSerialNumber();
+    return new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) throw err;
 
             const qry = minifySqlQuery(`
-                SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date
+                SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date,
+                    SUM(CASE
+                    WHEN Rated.user_serial_no = '${user_serial_no}' THEN rating
+                    ELSE NULL
+                    END
+                    ) AS my_rating
                 FROM (
                     SELECT Story.story_id, GROUP_CONCAT(genre_name) AS genre_names
                     FROM
@@ -174,11 +180,16 @@ router.get('/story', async (req, res) => {
             });
         });
     })
+}
+
+router.get('/story', async (req, res) => {
+    const {story_id} = req.query;
+    getStory(story_id)
     .then((result) => {
         res.send(JSON.stringify(result));
     })
     .catch((err) => {
-        console.error('--------ERROR IN /story: ', err);
+        console.error('--------ERROR IN get /story: ', err);
         res.status(500).end();
     });    
 });
@@ -425,6 +436,124 @@ router.post('/addPrompt', async (req, res) => {
     });
 });
 
+router.post('/addRating', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
+        try {
+            const {
+                story_id,
+                rating
+            } = req.body.ratingFields;
+            const rated = Rated.create(story_id, user_serial_no, rating);
+    
+                pool.getConnection( (err, conn) => {
+                    if (err) throw err;
+        
+                    const qry = sqlInsertStatement(Rated, rated);
+                    conn.query(qry, (err, result) => {
+                        conn.release();
+                        if (err) {reject(err); return;}
+                        console.log(`Rating ${rating} added`);
+                        resolve(result);
+                    });
+                });
+        }
+        catch(err) {
+            console.error('--------ERROR IN /addRating: ');
+            throw err;
+        }
+    })
+    .then(async (result) => {
+        const updatedStory = (await getStory(req.body.ratingFields.story_id))[0];
+        const ratingData = {};
+        ratingData.avg_rating = updatedStory.avg_rating;
+        ratingData.num_ratings = updatedStory.num_ratings;
+        ratingData.my_rating = updatedStory.my_rating;
+        res.send(JSON.stringify(ratingData));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
+
+router.put('/updateRating', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    try {
+        const {
+            story_id,
+            rating
+        } = req.body.ratingFields;
+
+        new Promise((resolve, reject) => {
+            pool.getConnection( (err, conn) => {
+                if (err) throw err;
+
+                const qry = sqlUpdateStatement(
+                    Rated,
+                    `rating = ${rating}`,
+                    `(story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')`
+                );
+                conn.query(qry, (err, result) => {
+                    conn.release();
+                    if (err) {reject(err); return;};
+                    console.log('Rating updated');
+                    resolve(result);
+                });
+            });
+        })
+        .then(async (result) => {
+            const updatedStory = (await getStory(req.body.ratingFields.story_id))[0];
+            const ratingData = {};
+            ratingData.avg_rating = updatedStory.avg_rating;
+            ratingData.num_ratings = updatedStory.num_ratings;
+            ratingData.my_rating = updatedStory.my_rating;
+            res.send(JSON.stringify(ratingData));
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).end();
+        });
+    }
+    catch(err) {
+        console.error('--------ERROR IN /updateRating: ');
+        throw err;
+    }
+});
+
+router.delete('/deleteRating', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    const {
+        story_id,
+    } = req.body.ratingFields;
+
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = sqlDeleteStatement(Rated, `(story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')`);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err){reject(err); return;};
+                console.log('Rating deleted');
+                resolve(result);
+            });
+        });
+    })
+    .then(async (result) => {
+        const updatedStory = (await getStory(req.body.ratingFields.story_id))[0];
+        const ratingData = {};
+        ratingData.avg_rating = updatedStory.avg_rating;
+        ratingData.num_ratings = updatedStory.num_ratings;
+        ratingData.my_rating = updatedStory.my_rating;
+        res.send(JSON.stringify(ratingData));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
+
 router.post('/addThumb', async (req, res) => {
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
@@ -449,7 +578,7 @@ router.post('/addThumb', async (req, res) => {
             });
     }
     catch(err) {
-        console.error('--------ERROR IN /addStory: ');
+        console.error('--------ERROR IN /addThumb: ');
         throw err;
     }
     })
@@ -520,9 +649,6 @@ router.delete('/deleteThumb', async (req, res) => {
                 console.log('Thumb deleted');
                 resolve(result);
             });
-    
-            // res.redirect('/stories');
-            res.end();
         });
     })
     .then((result) => {

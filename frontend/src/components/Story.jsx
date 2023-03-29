@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 
 import StarRatings from './StarRatings';
 
-function Story({story_id, title, avg_rating, genre_names, text_content, publish_date}) {
+function Story({story_id, title, avg_rating, num_ratings, genre_names, text_content, publish_date}) {
     return(
       <div className="story">
         <h2>{title}</h2>
@@ -10,11 +10,14 @@ function Story({story_id, title, avg_rating, genre_names, text_content, publish_
           <span>Rating:</span>
           {
             avg_rating ?
-            <StarRatings
-              rating={avg_rating}
-              name='overall-rating'
-              disabled
-            />:
+            <>
+              <StarRatings
+                rating={avg_rating}
+                name='overall-rating'
+                disabled
+              />
+              {num_ratings}
+            </> :
             <span>N/A</span>
           }
         </div>

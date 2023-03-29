@@ -3,7 +3,7 @@ import React from 'react';
 import ReactStarRatings from 'react-star-ratings';
 
 function StarRatings({rating, disabled, name='', onChangeRating=() => {}}) {
-  if (!rating) {
+  if (rating == null) {
     throw new Error('ERROR: Must specify rating in StarRatings');
   }
 
