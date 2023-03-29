@@ -26,7 +26,7 @@ function PromptsPage() {
 
   const handleGenreFilterChange = (e) => {
     if (e.target.checked)
-        { setGenreFilters([...genreFilters, e.target.value].sort((a, b) => a <= b)) }
+        { setGenreFilters([...genreFilters, e.target.value].sort((a, b) => a <= b ? -1 : 1)) }
     else
         { setGenreFilters(genreFilters.filter((genre_name) => genre_name !== e.target.value)) }
   }
