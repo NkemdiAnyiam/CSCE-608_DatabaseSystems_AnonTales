@@ -2,7 +2,8 @@ import React, {useState, useEffect, useContext} from 'react';
 
 import SerialNoContext from '../contexts/SerialNoContext';
 
-function Review({story_id, user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value}) {
+function Review({story_id, user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value,
+deleteReview}) {
   useEffect(() => {
 
   }, [])
@@ -59,6 +60,12 @@ function Review({story_id, user_serial_no, text_content, publish_date, num_thumb
         <div>{new Date(publish_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
         <div>{text_content}</div>
         <div><span>{num_thumbs_up + myThumbState ?? 0}</span> <span>{num_thumbs_down + (1 - (myThumbState ?? 1))}</span></div>
+        {
+          mySerialNo === user_serial_no &&
+          <button onClick={() => deleteReview()}>
+              DELETE
+            </button>
+        }
         
         {
           mySerialNo !== user_serial_no &&

@@ -49,12 +49,29 @@ function StoryPage(props) {
     });
 
     fetch('/addReview', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}})
-      .then(({ok}) => {
-          ok && history.go(0);
+      .then(async (res) => {
+        if (!res.ok) { return; }
+        const newReview = await res.json();
+        setReviews([...reviews, newReview].sort((a,b) => a.publish_date >= b.publish_date ? -1 : 1));
       })
       .catch(err => {
           console.error(err);
       });
+  }
+
+  const onDeleteReview = async () => {
+    fetch('/deleteReview', {
+      method: 'DELETE',
+      body: JSON.stringify({
+          reviewFields: {story_id: story.story_id}
+      }),
+      headers:{'Content-Type':'application/json'}
+    })
+    .then(async (res) => {
+      if (!res.ok) { return; }
+      setReviews(reviews.filter(review => review.user_serial_no !== mySerialNo));
+    })
+    .catch(err => console.error(err));
   }
 
   const handleChangeRating = (rating) => {
@@ -123,7 +140,7 @@ function StoryPage(props) {
                 {
                   reviews.map((item) => (
                     <React.Fragment key={item.user_serial_no}>
-                      <Review {...item} story_id={story.story_id} />
+                      <Review {...item} story_id={story.story_id} deleteReview={onDeleteReview} />
                     </React.Fragment>
                   ))
                 }

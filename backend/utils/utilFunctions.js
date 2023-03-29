@@ -53,6 +53,10 @@ function minifySqlQuery(query) {
     .trim();
 }
 
+function nullDefault(columnName, defaultValue) {
+  return `IFNULL(${columnName}, ${defaultValue}) ${columnName}`;
+}
+
 function sqlInsertStatement(schemaClass, insertee) {
   const relationName = typeof schemaClass === 'string' ? schemaClass : schemaClass.schemaName;
   const array = toArray(insertee);
@@ -105,6 +109,7 @@ module.exports = {
   toTupleStr,
   toPropertiesStr,
   minifySqlQuery,
+  nullDefault,
   sqlInsertStatement,
   sqlUpdateStatement,
   sqlDeleteStatement,

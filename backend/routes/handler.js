@@ -17,6 +17,7 @@ const Thumbed = require('../schemas/Thumbed.js');
 const {
     currentDate,
     minifySqlQuery,
+    nullDefault,
     sqlInsertStatement,
     sqlUpdateStatement,
     sqlDeleteStatement,
@@ -123,7 +124,7 @@ router.get('/stories', async (req, res) => {
             if (err) throw err;
 
             const qry = minifySqlQuery(`
-                SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date
+                SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, IFNULL(AVG(rating), 0) avg_rating, COUNT(rating) num_ratings, publish_date
                 FROM (
                     SELECT Stories.story_id, GROUP_CONCAT(genre_name) AS genre_names
                     FROM Stories LEFT JOIN FallsUnder ON (Stories.story_id = FallsUnder.story_id)
@@ -280,7 +281,7 @@ router.get('/reviews', async (req, res) => {
             if (err) throw err;
 
             const qry = minifySqlQuery(`
-                SELECT user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value
+                SELECT user_serial_no, text_content, publish_date, ${nullDefault('num_thumbs_up',0)}, ${nullDefault('num_thumbs_down',0)}, my_thumb_value
                 FROM (
                     SELECT user_serial_no, text_content, publish_date
                     FROM Reviews
@@ -323,6 +324,47 @@ router.get('/reviews', async (req, res) => {
     });    
 });
 
+const getReview = async (story_id, user_serial_no) => {
+    return new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = minifySqlQuery(`
+                SELECT user_serial_no, text_content, publish_date, ${nullDefault('num_thumbs_up',0)}, ${nullDefault('num_thumbs_down',0)}, my_thumb_value
+                FROM (
+                    SELECT user_serial_no, text_content, publish_date
+                    FROM Reviews
+                    WHERE (story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')
+                ) AS StoryReviews LEFT JOIN (
+                    SELECT
+                        reviewer_serial_no,
+                        SUM(CASE bin_value WHEN 1 THEN 1 ELSE 0 END) num_thumbs_up,
+                        SUM(CASE bin_value WHEN 0 THEN 1 ELSE 0 END) num_thumbs_down,
+                        SUM(CASE
+                            WHEN user_serial_no = '${user_serial_no}' THEN (
+                                CASE
+                                WHEN bin_value = 1 THEN 1
+                                ELSE 0
+                                END
+                            )
+                            ELSE NULL
+                            END
+                        ) AS my_thumb_value
+                    FROM Thumbed
+                    WHERE story_id = '${story_id}'
+                    GROUP BY reviewer_serial_no
+                ) AS StoryReviewsThumbs ON (StoryReviews.user_serial_no = StoryReviewsThumbs.reviewer_serial_no)
+            `);
+            conn.query(qry, (err, result) => {
+                // console.log(result);
+                conn.release();
+                if (err) throw err;
+                resolve(result);
+            });
+        });
+    })
+}
+
 router.post('/addReview', async (req, res) => {
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {   
@@ -338,7 +380,7 @@ router.post('/addReview', async (req, res) => {
                     conn.release();
                     if (err) {reject(err); return;}
                     console.log('New review added');
-                    resolve(result);
+                    resolve(review);
                 });
             });
         }
@@ -346,7 +388,38 @@ router.post('/addReview', async (req, res) => {
             reject(err);
         }
     })
-    .then((result) => {
+    .then(async (result) => {
+        const newReview = (await getReview(result.story_id, user_serial_no))[0];
+        console.log('HERE')
+        console.log(newReview)
+        res.send(JSON.stringify(newReview));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
+
+router.delete('/deleteReview', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    const {
+        story_id,
+    } = req.body.reviewFields;
+
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = sqlDeleteStatement(Reviews, `(story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')`);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err){reject(err); return;};
+                console.log('Review deleted');
+                resolve(result);
+            });
+        });
+    })
+    .then(async (result) => {
         res.end();
     })
     .catch((err) => {
