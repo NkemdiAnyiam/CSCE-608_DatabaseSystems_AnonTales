@@ -4,16 +4,16 @@ import { Link } from 'react-router-dom';
 import Story from '../components/Story';
 
 function StoriesPage() {
-  useEffect( () => {
-      fetchItems();
-  }, []);
+    useEffect( () => {
+        fetchItems();
+    }, []);
 
-  const [stories, setStories] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [genreFilters, setGenreFilters] = useState([]);
-  const [dataLoaded, setDataLoaded] = useState(false);
+    const [stories, setStories] = useState([]);
+    const [genres, setGenres] = useState([]);
+    const [genreFilters, setGenreFilters] = useState([]);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
-  const fetchItems = async () => {
+    const fetchItems = async () => {
     const datas = await Promise.all(
         [fetch('/stories'),
         fetch('/genres')]
@@ -23,19 +23,23 @@ function StoriesPage() {
     setStories(stories);
     setGenres(genres);
     setDataLoaded(true);
-  };
+    };
 
-  const handleGenreFilterChange = (e) => {
+    const handleGenreFilterChange = (e) => {
     const target_genre_name = e.target.value;
     if (e.target.checked)
         { setGenreFilters([...genreFilters, target_genre_name]) }
     else
-        { setGenreFilters([...genreFilters].splice(genreFilters.indexOf(target_genre_name))); }
-  }
+        {
+            const io = genreFilters.indexOf(target_genre_name);
+            const newArr = [...genreFilters.slice(0, io), ...genreFilters.slice(io+1)];
+            setGenreFilters(newArr);
+        }
+    }
 
-  if (!dataLoaded) {
+    if (!dataLoaded) {
     return <div>Loading stories...</div>
-  }
+    }
 
     return(
         <section className="stories-page">
@@ -60,8 +64,11 @@ function StoriesPage() {
 
                 <div className="stories">
                     {
-                    stories
-                        .filter(story => genreFilters.length === 0 || story.genre_names?.split(',')?.some(genre_name => genreFilters.includes(genre_name)))
+                        (
+                            genreFilters.length === 0 ?
+                            stories :
+                            stories.filter(story => story.genre_names && genreFilters.some(genre_name => story.genre_names.includes(genre_name)))
+                        )
                         .map(item => (
                             <div key={item.story_id}>
                                 <Link to={`/story/${item.story_id}`}>

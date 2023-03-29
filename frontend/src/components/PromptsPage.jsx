@@ -25,10 +25,15 @@ function PromptsPage() {
   };
 
   const handleGenreFilterChange = (e) => {
+    const target_genre_name = e.target.value;
     if (e.target.checked)
-        { setGenreFilters([...genreFilters, e.target.value].sort((a, b) => a <= b ? -1 : 1)) }
+        { setGenreFilters([...genreFilters, target_genre_name]) }
     else
-        { setGenreFilters(genreFilters.filter((genre_name) => genre_name !== e.target.value)) }
+        {
+            const io = genreFilters.indexOf(target_genre_name);
+            const newArr = [...genreFilters.slice(0, io), ...genreFilters.slice(io+1)];
+            setGenreFilters(newArr);
+        }
   }
 
     return(
@@ -55,8 +60,11 @@ function PromptsPage() {
 
                 <div className="prompts">
                     {
-                    prompts
-                        .filter(prompt => genreFilters.length === 0 || prompt.genre_names?.split(',')?.some(genre_name => genreFilters.includes(genre_name)))
+                        (
+                            genreFilters.length === 0 ?
+                            prompts :
+                            prompts.filter(prompt => prompt.genre_names && genreFilters.some(genre_name => prompt.genre_names.includes(genre_name)))
+                        )
                         .map(item => (
                             <div key={item.prompt_id}>
                                 <Prompt {...item} />
