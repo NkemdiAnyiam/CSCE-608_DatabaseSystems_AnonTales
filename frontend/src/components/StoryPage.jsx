@@ -12,6 +12,7 @@ function StoryPage(props) {
   const [myRating, setMyRating] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [loadingRating, setLoadingRating] = useState(false);
   const history = useHistory();
   const mySerialNo = useContext(SerialNoContext);
 
@@ -75,6 +76,8 @@ function StoryPage(props) {
   }
 
   const handleChangeRating = (rating) => {
+    setLoadingRating(true);
+
     const obj = {
       ratingFields: {
         story_id: story.story_id,
@@ -82,11 +85,12 @@ function StoryPage(props) {
       }
     }
     
-    const thing = (prom => {
-      prom.then(async (res) => {
+    const fetchWrapper = (fetchResult => {
+      fetchResult.then(async (res) => {
         if (!res.ok) { return; }
         const ratingData = await res.json();
         setStory({...story, ...ratingData});
+        setLoadingRating(false);
       })
       .catch(err => {
         console.error(err);
@@ -94,13 +98,13 @@ function StoryPage(props) {
     });
 
     if (!myRating) {
-      thing(fetch('/addRating', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
+      fetchWrapper(fetch('/addRating', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
     }
     else if (rating === myRating) {
-      thing(fetch('/deleteRating', {method: 'DELETE', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
+      fetchWrapper(fetch('/deleteRating', {method: 'DELETE', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
     }
     else {
-      thing(fetch('/updateRating', {method: 'PUT', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
+      fetchWrapper(fetch('/updateRating', {method: 'PUT', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}}));
     }
   }
 
@@ -111,43 +115,53 @@ function StoryPage(props) {
   }
 
   return(
-      <section className="story-page">
-          <div className="container-fluid">
-              <section className="section--story">
-                <div className="story-container">
-                    <Story {...story} />
-                </div>
-                <div className="stars">
-                  {myRating ? 'Your rating' : 'Rate story?'}
-                  <form>
-                    <StarRatings rating={myRating ?? 0} name="user-star-rating" onChangeRating={handleChangeRating} />
-                  </form>
-                </div>
-              </section>
-
-              <section className="section--write-review">
-                <form onSubmit={handleWriteReview}>
-                  <div className="form-container">
-                      <h2>Write a review</h2>
-                      <textarea name="reviewFields.text_content" />
-                      <button type="submit">Submit</button>
-                  </div>
-                </form>
-              </section>
-
-              <section className="section--reviews">
-                <div className="reviews">
+    <div className="page page--story story-page">
+      <section className="section section--story">
+        <div className="container-fluid">
+            <div className="story-container">
+                <Story {...story} />
+            </div>
+            <div className="story-page__rate-story">
+              <p>{myRating ? 'Your rating' : 'Rate story?'}</p>
+              <div className="story-page__star-ratings-container">
                 {
-                  reviews.map((item) => (
-                    <React.Fragment key={item.user_serial_no}>
-                      <Review {...item} story_id={story.story_id} deleteReview={onDeleteReview} />
-                    </React.Fragment>
-                  ))
+                  loadingRating ?
+                  <p>Processing...</p> :
+                  <StarRatings rating={myRating ?? 0} name="user-star-rating" onChangeRating={handleChangeRating} />
                 }
-                </div>
-              </section>
-          </div>
+              </div>
+            </div>
+        </div>
       </section>
+
+        
+      <section className="section section--write-review">
+        <div className="container-fluid">
+            <form onSubmit={handleWriteReview}>
+              <div className="form-container">
+                  <h2>Write a review</h2>
+                  <textarea name="reviewFields.text_content" />
+                  <button type="submit">Submit</button>
+              </div>
+            </form>
+        </div>
+      </section>
+
+        
+      <section className="section section--reviews">
+        <div className="container-fluid">
+            <div className="reviews">
+            {
+              reviews.map((item) => (
+                <React.Fragment key={item.user_serial_no}>
+                  <Review {...item} story_id={story.story_id} deleteReview={onDeleteReview} />
+                </React.Fragment>
+              ))
+            }
+            </div>
+        </div>
+      </section>
+    </div>
   );
 }
 

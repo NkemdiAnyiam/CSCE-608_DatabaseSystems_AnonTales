@@ -62,7 +62,7 @@ function StoriesPage() {
                     </fieldset>
                 </form>
 
-                <div className="stories">
+                <section className="section section--stories">
                     {
                         (
                             genreFilters.length === 0 ?
@@ -70,14 +70,14 @@ function StoriesPage() {
                             stories.filter(story => story.genre_names && genreFilters.some(genre_name => story.genre_names.includes(genre_name)))
                         )
                         .map(item => (
-                            <div key={item.story_id}>
+                            <div className="container-fluid" key={item.story_id}>
                                 <Link to={`/story/${item.story_id}`}>
                                     <Story {...item} />
                                 </Link>
                             </div>
                         ))
                     }
-                </div>
+                </section>
             </div>
         </section>
     );

@@ -12,9 +12,12 @@ html {
 }
 
 body {
+  font-family: filson-soft, sans-serif;
   position: relative;
   font-size: 1.4rem;
-  overflow-x: hidden;
+  line-height: 1.2;
+  // overflow-x: hidden;
+  background-color: $color-violet-darkest;
 }
 
 form {
@@ -59,4 +62,18 @@ button {
   width: max-content;
   padding: 0.2rem 1rem;
   cursor: pointer;
+  border-radius: 0.5rem;
+  border: solid 2px black;
+  background-color: $color-brand-yellow-light;
+}
+
+.section {
+  .container-fluid {
+    max-width: 120rem;
+    background-color: $color-violet-light;
+    padding: 1.5rem 4rem;
+  }
+}
+
+.page {
 }

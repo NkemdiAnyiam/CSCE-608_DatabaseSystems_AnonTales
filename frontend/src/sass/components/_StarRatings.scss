@@ -1,5 +1,5 @@
 .star-ratings {
-  height: 2rem;
+  height: 1.4rem;
 
   &.star-ratings--disabled {
     * {
@@ -17,7 +17,7 @@
   
     display: flex !important;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
   
     .star-container {
       position: relative;
@@ -29,9 +29,11 @@
       svg {
         height: 100% !important;
         width: auto !important;
+
         path {
           height: 100% !important;
           display: inline-block;
+          stroke:black;
         }
       }
     }

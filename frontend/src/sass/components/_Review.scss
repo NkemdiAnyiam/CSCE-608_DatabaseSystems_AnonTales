@@ -1,3 +1,48 @@
 .review {
   font-size: 1.4rem;
+  max-width: 90rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__text-content {
+    line-height: 1.4;
+  }
+
+  &__thumbs {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__thumb {
+    box-sizing: content-box;
+    min-width: 3.6rem;
+    height: 1.3rem;
+    padding: 0.5rem 0.2rem;
+    font-size: 1.3rem;
+
+    &.review__thumb--down {
+      svg {
+        transform: scaleX(-1);
+      }
+    }
+
+    &[disabled] {
+      background-color: $color-gray;
+      cursor: not-allowed;
+      color: black;
+    }
+
+    svg {
+      position: relative;
+      bottom: 1.8px;
+      left: 0.5px;
+      height: 100%;
+      width: auto;
+      margin-right: 0.5rem;
+
+      display: inline-block;
+    }
+  }
 }
