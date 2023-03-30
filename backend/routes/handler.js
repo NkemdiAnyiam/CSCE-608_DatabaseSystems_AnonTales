@@ -149,6 +149,39 @@ router.get('/stories', async (req, res) => {
     });
 });
 
+router.get('/myStories', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = minifySqlQuery(`
+                SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, IFNULL(AVG(rating), 0) avg_rating, COUNT(rating) num_ratings, publish_date
+                FROM (
+                    SELECT Stories.story_id, GROUP_CONCAT(genre_name) AS genre_names
+                    FROM Stories LEFT JOIN FallsUnder ON (Stories.story_id = FallsUnder.story_id)
+                    WHERE Stories.user_serial_no = '${user_serial_no}'
+                    GROUP BY story_id
+                    ORDER BY title
+                ) AS result NATURAL JOIN Stories LEFT JOIN Rated ON Stories.story_id = Rated.story_id
+                GROUP BY story_id;
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) {reject(err); return;}
+                resolve(result);
+            });
+        });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
+
 const getStory = async story_id => {
     const user_serial_no = await getSerialNumber();
     return new Promise((resolve, reject) => {
@@ -435,6 +468,35 @@ router.get('/prompts', async (req, res) => {
             const qry = minifySqlQuery(`
                 SELECT Prompts.prompt_id, Prompts.user_serial_no, GROUP_CONCAT(genre_name) AS genre_names, text_content, publish_date
                 FROM Prompts LEFT JOIN PromptsGenre ON (Prompts.prompt_id = PromptsGenre.prompt_id)
+                GROUP BY prompt_id
+                ORDER BY publish_date DESC
+            `);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err) {reject(err); return;}
+                resolve(result);
+            });
+        });
+    })
+    .then((result) => {
+        res.send(JSON.stringify(result));
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });    
+});
+
+router.get('/myPrompts', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = minifySqlQuery(`
+                SELECT Prompts.prompt_id, Prompts.user_serial_no, GROUP_CONCAT(genre_name) AS genre_names, text_content, publish_date
+                FROM Prompts LEFT JOIN PromptsGenre ON (Prompts.prompt_id = PromptsGenre.prompt_id)
+                WHERE Prompts.user_serial_no = '${user_serial_no}'
                 GROUP BY prompt_id
                 ORDER BY publish_date DESC
             `);

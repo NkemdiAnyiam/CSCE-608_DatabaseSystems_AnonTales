@@ -49,7 +49,9 @@ function Nav() {
             <div id="navMainMenu" className="navbar-collapse collapse">
                 <div className="nav__links navbar-nav ml-auto">
                     <Link to='/' className={`nav__link nav-item nav-link ${currentPath === '/' ? 'action' : ''}`}>Home</Link>
+                    <Link to='/my-stories' className={`nav__link nav-item nav-link ${currentPath?.startsWith?.('/my-stories') ? 'active' : ''}`}>My Stories</Link>
                     <Link to='/stories' className={`nav__link nav-item nav-link ${currentPath?.startsWith?.('/stories') ? 'active' : ''}`}>Stories</Link>
+                    <Link to='/my-prompts' className={`nav__link nav-item nav-link ${currentPath?.startsWith?.('/my-prompts') ? 'active' : ''}`}>My Prompts</Link>
                     <Link to='/prompts' className={`nav__link nav-item nav-link ${currentPath?.startsWith?.('/prompts') ? 'active' : ''}`}>Prompts</Link>
                     {renderUserForm()}
                 </div>

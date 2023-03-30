@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Story from '../components/Story';
 import StarRatings from './StarRatings';
 
-function StoriesPage() {
+function MyStoriesPage() {
     useEffect( () => {
         fetchItems();
     }, []);
@@ -18,7 +18,7 @@ function StoriesPage() {
 
     const fetchItems = async () => {
     const datas = await Promise.all(
-        [fetch('/stories'),
+        [fetch('/myStories'),
         fetch('/genres')]
     );
     const stories = await datas[0].json();
@@ -179,4 +179,4 @@ function StoriesPage() {
     );
 }
 
-export default StoriesPage;
+export default MyStoriesPage;
