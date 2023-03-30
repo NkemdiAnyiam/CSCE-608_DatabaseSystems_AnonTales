@@ -160,21 +160,22 @@ function StoryPage(props) {
         
       <section className="section section--reviews">
         <div className="container-fluid">
-            <div className="reviews">
-            {
-              reviews.map((item) => (
-                <React.Fragment key={item.user_serial_no}>
-                  <Review
-                    {...item}
-                    story_id={story.story_id}
-                    deleteReview={onDeleteReview}
-                    setIHaveReview={setIHaveReview}
-                    setReviewValue={setReviewValue}
-                  />
-                </React.Fragment>
-              ))
-            }
-            </div>
+          <h2>All reviews</h2>
+          <div className="reviews">
+          {
+            reviews.map((item) => (
+              <React.Fragment key={item.user_serial_no}>
+                <Review
+                  {...item}
+                  story_id={story.story_id}
+                  deleteReview={onDeleteReview}
+                  setIHaveReview={setIHaveReview}
+                  setReviewValue={setReviewValue}
+                />
+              </React.Fragment>
+            ))
+          }
+          </div>
         </div>
       </section>
     </div>
