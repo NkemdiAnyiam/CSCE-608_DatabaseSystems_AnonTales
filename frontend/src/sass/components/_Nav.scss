@@ -2,13 +2,20 @@
   position: sticky;
   z-index: 1000;
   top: 0;
+  padding: 1.5rem 1rem;
 
-  margin-bottom: 2rem;
   width: 100%;
   background-color: rgba($color-violet-darkest, 0.7) !important;
   box-shadow: 2px 2px 3px rgba(black, 0.7);
 
   &__links {
     gap: 2rem;
+    @media only screen and (max-width: 992px) {
+      gap: 1rem;
+    }
+  }
+
+  &__link {
+    transition: color 0.1s;
   }
 }
