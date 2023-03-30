@@ -12,7 +12,7 @@ function StoriesPage() {
     const [stories, setStories] = useState([]);
     const [genres, setGenres] = useState([]);
     const [genreFilters, setGenreFilters] = useState([]);
-    const [ratingFilter, setRatingFilter] = useState([]);
+    const [ratingFilter, setRatingFilter] = useState([0]);
     const [sortingFunc, setSortingFunc] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
 
