@@ -50,7 +50,7 @@ function HomePage() {
         return (
             <form onSubmit={(e) => {handleSubmit(e, 'storyFields', '/addStory')}} className="form form--add-story">
                 <div className="form-container form-container--story">
-                    <h2>Write a story</h2>
+                    <h2>Tell a story</h2>
                     <label>
                         <span>Title</span>
                         <input name="storyFields.title" type="text" maxLength={100} required />
@@ -72,7 +72,7 @@ function HomePage() {
                         </div>
                         </details>
                     </fieldset>
-                    <button className={`button button--green`} type="submit">Submit</button>
+                    <button className={`button button--green`} type="submit">Publish    </button>
                 </div>
             </form>
         );
@@ -82,7 +82,7 @@ function HomePage() {
         return (
             <form onSubmit={(e) => handleSubmit(e, 'promptFields', '/addPrompt')} className="form form--add-prompt">
                 <div className='form-container form-container--prompt'>
-                <h2>Write a prompt</h2>
+                <h2>Submit a prompt</h2>
                     <label>
                         <span>Entry</span>
                         <textarea name="promptFields.text_content" maxLength={5000} required />
