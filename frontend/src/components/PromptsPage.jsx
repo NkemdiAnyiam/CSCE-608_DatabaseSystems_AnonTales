@@ -37,43 +37,45 @@ function PromptsPage() {
   }
 
     return(
-        <section className="prompts-page">
-            <div className="container-fluid">
-                <h1 className="heading-primary">Prompts</h1>
-                <form onChange={handleGenreFilterChange}>
-                    <fieldset>
-                        <legend>Genres</legend>
-                        <details className="genres-dropdown">
-                            <summary></summary>
-                            <div className="genres">
-                                {genres.map(({genre_name}) => (
-                                <label key={genre_name}>
-                                    {genre_name}
-                                    <input type="checkbox" name="genre_names" value={genre_name} />
-                                </label>
-                                ))}
-                            </div>
-                        </details>
-                        
-                    </fieldset>
-                </form>
+        <div className="page page--prompts prompts-page">
+            <h1 className="heading-primary">Prompts</h1>
 
-                <div className="prompts">
-                    {
-                        (
-                            genreFilters.length === 0 ?
-                            prompts :
-                            prompts.filter(prompt => prompt.genre_names && genreFilters.some(genre_name => prompt.genre_names.includes(genre_name)))
-                        )
-                        .map(item => (
-                            <div key={item.prompt_id}>
-                                <Prompt {...item} />
-                            </div>
-                        ))
-                    }
+            <section className="section section--genre-filters">
+                <div className="container-fluid">
+                    <form onChange={handleGenreFilterChange}>
+                        <fieldset className="genres-fieldset">
+                            <details className="genres-dropdown">
+                                <summary>Genres</summary>
+                                <div className="genres">
+                                    {genres.map(({genre_name}) => (
+                                    <label key={genre_name}>
+                                        <input type="checkbox" name="genre_names" value={genre_name} />
+                                        <span>{genre_name}</span>
+                                    </label>
+                                    ))}
+                                </div>
+                            </details>
+                            
+                        </fieldset>
+                    </form>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <section className="section section--prompts">
+                {
+                    (
+                        genreFilters.length === 0 ?
+                        prompts :
+                        prompts.filter(prompt => prompt.genre_names && genreFilters.some(genre_name => prompt.genre_names.includes(genre_name)))
+                    )
+                    .map(item => (
+                        <div className="container-fluid" key={item.prompt_id}>
+                            <Prompt {...item} />
+                        </div>
+                    ))
+                }
+            </section>
+        </div>
     );
 }
 

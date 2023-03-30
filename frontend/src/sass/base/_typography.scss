@@ -2,8 +2,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 // TODO: Remove temporary stylings
-h1 {
+.heading-primary {
   font-size: 4rem;
   line-height: 1.2;
   margin-bottom: 3rem;
+  text-align: center;
+  color: white;
 }

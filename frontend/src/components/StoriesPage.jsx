@@ -42,44 +42,47 @@ function StoriesPage() {
     }
 
     return(
-        <section className="stories-page">
-            <div className="container-fluid">
-                <h1 className="mt-5">Stories</h1>
-                <form onChange={handleGenreFilterChange}>
-                    <fieldset className="genres-fieldset">
-                        <details className="genres-dropdown">
-                            <summary>Genres</summary>
-                            <div className="genres">
-                                {genres.map(({genre_name}) => (
-                                <label key={genre_name}>
-                                    <input type="checkbox" name="genre_names" value={genre_name} />
-                                    <span>{genre_name}</span>
-                                </label>
-                                ))}
-                            </div>
-                        </details>
-                        
-                    </fieldset>
-                </form>
+        <div className="page page--stories stories-page">
+            <h1 className="heading-primary">Stories</h1>
 
-                <section className="section section--stories">
-                    {
-                        (
-                            genreFilters.length === 0 ?
-                            stories :
-                            stories.filter(story => story.genre_names && genreFilters.some(genre_name => story.genre_names.includes(genre_name)))
-                        )
-                        .map(item => (
+            <section className="section section--genre-filters">
+                <div className="container-fluid">
+                    <form onChange={handleGenreFilterChange}>
+                        <fieldset className="genres-fieldset">
+                            <details className="genres-dropdown">
+                                <summary>Genres</summary>
+                                <div className="genres">
+                                    {genres.map(({genre_name}) => (
+                                    <label key={genre_name}>
+                                        <input type="checkbox" name="genre_names" value={genre_name} />
+                                        <span>{genre_name}</span>
+                                    </label>
+                                    ))}
+                                </div>
+                            </details>
+                            
+                        </fieldset>
+                    </form>
+                </div>
+            </section>
+
+            <section className="section section--stories">
+                {
+                    (
+                        genreFilters.length === 0 ?
+                        stories :
+                        stories.filter(story => story.genre_names && genreFilters.some(genre_name => story.genre_names.includes(genre_name)))
+                    )
+                    .map(item => (
+                        <Link className="stories-page__story-link-wrapper" to={`/stories/${item.story_id}`}>
                             <div className="container-fluid" key={item.story_id}>
-                                <Link to={`/stories/${item.story_id}`}>
-                                    <Story {...item} />
-                                </Link>
+                                <Story {...item} />
                             </div>
-                        ))
-                    }
-                </section>
-            </div>
-        </section>
+                        </Link>
+                    ))
+                }
+            </section>
+        </div>
     );
 }
 

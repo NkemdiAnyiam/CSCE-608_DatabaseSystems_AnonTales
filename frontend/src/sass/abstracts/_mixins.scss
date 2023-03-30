@@ -1,0 +1,13 @@
+@mixin btn-solid($background-color) {
+  background-color: $background-color;
+  transition: transform 0.1s, background-color 0.1s;
+
+  &:hover {
+    background-color: darken($background-color, 3.5%);
+    transform: scale(0.99);
+  }
+  &:active {
+    background-color: darken($background-color, 7%);
+    transform: scale(0.98);
+  }
+}

@@ -14,7 +14,9 @@ function StarRatings({rating, disabled, name='', onChangeRating=() => {}}) {
     >
       <ReactStarRatings
         rating={rating}
-        starRatedColor="#aa0022"
+        starRatedColor="#F5B52A"
+        starEmptyColor='#f5f5fc'
+        starHoverColor='#C48600'
         changeRating={onChangeRating}
         numberOfStars={5}
         name={name}

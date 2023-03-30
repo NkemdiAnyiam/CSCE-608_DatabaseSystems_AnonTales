@@ -1,19 +1,17 @@
-.stories-page {
+.prompts-page {
   .section--genre-filters {
     margin-bottom: 3rem;
   }
 
-  .section--stories {
+  .section--prompts {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 2rem;
   }
 
   &__story-link-wrapper {
     text-decoration: none !important;
     transition: transform 0.1s;
-    width: fit-content;
 
     &:hover {
       transform: scale(1.01);

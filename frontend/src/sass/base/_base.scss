@@ -43,6 +43,10 @@ form {
     width: min-content;
     details {
       width: max-content;
+
+      summary {
+        margin-bottom: 0.5rem;
+      }
     }
 
     .genres {
@@ -66,20 +70,20 @@ form {
   cursor: pointer;
   border-radius: 0.5rem;
   border: solid 0.15rem black;
-  background-color: $color-brand-yellow-light;
+  @include btn-solid($color-brand-yellow-light);
   
   &.button--red {
-    background-color: $color-brand-red-light;
+    @include btn-solid($color-brand-red-light);
   }
 
   &.button--green {
-    background-color: $color-brand-green-light;
+    @include btn-solid($color-brand-green-light);
   }
 }
 
 .section {
   width: 100%;
-  
+
   .container-fluid {
     max-width: 120rem;
     background-color: $color-violet-light;
@@ -88,4 +92,5 @@ form {
 }
 
 .page {
+  padding: 2rem;
 }
