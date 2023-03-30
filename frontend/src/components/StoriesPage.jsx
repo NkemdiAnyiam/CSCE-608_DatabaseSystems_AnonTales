@@ -13,6 +13,7 @@ function StoriesPage() {
     const [genres, setGenres] = useState([]);
     const [genreFilters, setGenreFilters] = useState([]);
     const [ratingFilter, setRatingFilter] = useState([]);
+    const [sortingFunc, setSortingFunc] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
 
     const fetchItems = async () => {
@@ -42,6 +43,24 @@ function StoriesPage() {
     const handleRatingFilterChange = (e) => {
         const target_rating = Number.parseInt(e.target.value);
         setRatingFilter([target_rating])
+    }
+
+    const handleSortByChange = (e) => {
+        const target_val = Number.parseInt(e.target.value);
+        let sortFunc = null;
+        switch(target_val) {
+            case 0:
+                sortFunc = ({title: titleA}, {title: titleB}) => titleA.toLowerCase() <= titleB.toLowerCase() ? -1 : 1;
+            case 1:
+                sortFunc = ({title: titleA}, {title: titleB}) => titleA.toLowerCase() >= titleB.toLowerCase() ? -1 : 1;
+            case 2:
+                sortFunc = ({avg_rating: avg_ratingA}, {avg_rating: avg_ratingB}) => avg_ratingA <= avg_ratingB ? -1 : 1;
+            case 3:
+                sortFunc = ({avg_rating: avg_ratingA}, {avg_rating: avg_ratingB}) => avg_ratingA >= avg_ratingB ? -1 : 1;
+            default:
+                throw new Error(`ERROR: Invalid case ${target_val} in handleSortByChange`);
+        }
+        setSortingFunc(sortFunc);
     }
     
     const renderRatingFilter = (rating, showAndUp) => {
@@ -102,6 +121,33 @@ function StoriesPage() {
                             
                         </fieldset>
                     </form>
+
+                    {/* <form onChange={handleSortByChange}>
+                        <fieldset className="filters-fieldset">
+                            <details className="filters-dropdown">
+                                <summary>Sort by</summary>
+                                <div className="filters">
+                                    <label key={0}>
+                                        <input type="radio" name="ratings" value={0} />
+                                        <span>Title (A—Z)</span>
+                                    </label>
+                                    <label key={1}>
+                                        <input type="radio" name="ratings" value={0} />
+                                        <span>Title (Z—A)</span>
+                                    </label>
+                                    <label key={2}>
+                                        <input type="radio" name="ratings" value={0} />
+                                        <span>Rating (High—Low)</span>
+                                    </label>
+                                    <label key={3}>
+                                        <input type="radio" name="ratings" value={0} />
+                                        <span>Rating (Low—High)</span>
+                                    </label>
+                                </div>
+                            </details>
+                            
+                        </fieldset>
+                    </form> */}
                 </div>
             </section>
 
