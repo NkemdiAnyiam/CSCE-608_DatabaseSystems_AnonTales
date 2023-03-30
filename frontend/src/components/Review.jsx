@@ -3,15 +3,19 @@ import React, {useState, useEffect, useContext} from 'react';
 import SerialNoContext from '../contexts/SerialNoContext';
 
 function Review({story_id, user_serial_no, text_content, publish_date, num_thumbs_up, num_thumbs_down, my_thumb_value,
-deleteReview}) {
+setIHaveReview, deleteReview, setReviewValue}) {
   useEffect(() => {
-
+    if (user_serial_no === mySerialNo) {
+      setIsMyReview(true);
+      setIHaveReview(true);
+      setReviewValue(text_content);
+    }
   }, [])
 
   const mySerialNo = useContext(SerialNoContext);
 
   const [myThumbState, setMyThumbState] = useState(my_thumb_value);
-  const [isOwnReview, setIsOwnReview] = useState(user_serial_no === mySerialNo);
+  const [isMyReview, setIsMyReview] = useState(false);
 
   const addThumb = async (bin_value) => {
     const res = await fetch(
@@ -64,18 +68,18 @@ deleteReview}) {
 
         <div className="review__text-content">{text_content}</div>
         {
-          isOwnReview &&
-          <button onClick={() => deleteReview()}>
+          isMyReview &&
+          <button className="button button--red" onClick={() => deleteReview()}>
               DELETE
           </button>
         }
         
         <div className="review__thumbs">
           <button
-            className={`review__thumb review__thumb--up ${isOwnReview ? 'disabled' : ''}`}
-            disabled={isOwnReview}
+            className={`button button--green review__thumb review__thumb--up ${isMyReview ? 'disabled' : ''}`}
+            disabled={isMyReview}
             onClick={() => {
-              if (isOwnReview) { return; }
+              if (isMyReview) { return; }
               else if (myThumbState === null) { addThumb(1); }
               else if (myThumbState === 1) { deleteThumb(); }
               else { updateThumb(1) }
@@ -88,10 +92,10 @@ deleteReview}) {
           </button>
 
           <button
-            className={`review__thumb review__thumb--down`}
-            disabled={isOwnReview}
+            className={` button button--red review__thumb review__thumb--down`}
+            disabled={isMyReview}
             onClick={() => {
-              if (isOwnReview) { return; }
+              if (isMyReview) { return; }
               else if (myThumbState === null) { addThumb(0); }
               else if (myThumbState === 0) { deleteThumb(); }
               else { updateThumb(0); }

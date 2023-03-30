@@ -4,10 +4,23 @@
   }
 
   &__rate-story {
-    
+    display: flex;
+    gap: 1rem;
+  }
+
+  .write-review-form {
+    max-width: 90rem;
+    width: 100%;
+
+    textarea {
+      width: 100%;
+      height: 10rem;
+    }
   }
 
   .reviews {
+    max-width: 90rem;
+
     display: flex;
     flex-direction: column;
     gap: 3rem;

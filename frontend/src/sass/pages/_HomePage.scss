@@ -1,6 +1,21 @@
-.home {
+.home-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .heading-primary {
+    color: white;
+  }
+
   .section {
     margin-bottom: 3rem;
+  }
+
+  .section {
+    &.section--story-form,
+    &.section--prompt-form {
+      max-width: 90rem;
+    }
   }
 
   .form {

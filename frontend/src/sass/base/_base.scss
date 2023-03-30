@@ -24,17 +24,19 @@ form {
   label {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .form-container {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    max-width: 50rem;
   }
 
-  textarea {
+  textarea, input {
     padding: 0.5rem;
+    background-color: $color-gray-lightest;
+    border: solid 0.15rem black;
   }
 
   .genres-fieldset {
@@ -58,16 +60,26 @@ form {
   }
 }
 
-button {
+.button {
   width: max-content;
   padding: 0.2rem 1rem;
   cursor: pointer;
   border-radius: 0.5rem;
-  border: solid 2px black;
+  border: solid 0.15rem black;
   background-color: $color-brand-yellow-light;
+  
+  &.button--red {
+    background-color: $color-brand-red-light;
+  }
+
+  &.button--green {
+    background-color: $color-brand-green-light;
+  }
 }
 
 .section {
+  width: 100%;
+  
   .container-fluid {
     max-width: 120rem;
     background-color: $color-violet-light;

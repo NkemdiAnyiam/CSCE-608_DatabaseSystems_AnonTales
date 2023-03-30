@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import { SerialNoProvider } from './contexts/SerialNoContext';
 
 import Nav from './components/Nav';
-import Home from './components/Home';
+import HomePage from './components/HomePage';
 import StoriesPage from './components/StoriesPage';
 import StoryPage from './components/StoryPage';
 import PromptsPage from './components/PromptsPage';
@@ -32,9 +32,9 @@ function App() {
         <div className="app">
             <Nav />
             <Switch>
-              <Route path="/" exact component={Home} />
+              <Route path="/" exact component={HomePage} />
+              <Route path={`/stories/:story_id`} render={({match: {params}}) => <StoryPage story_id={params.story_id}  />} />
               <Route path="/stories" exact component={StoriesPage} />
-              <Route path={`/story/:story_id`} render={({match: {params}}) => <StoryPage story_id={params.story_id}  />} />
               <Route path="/prompts" exact component={PromptsPage} />
             </Switch>
         </div>

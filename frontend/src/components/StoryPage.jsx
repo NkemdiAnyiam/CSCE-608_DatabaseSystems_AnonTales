@@ -13,6 +13,8 @@ function StoryPage(props) {
   const [reviews, setReviews] = useState([]);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [loadingRating, setLoadingRating] = useState(false);
+  const [reviewValue, setReviewValue] = useState('');
+  const [iHaveReview, setIHaveReview] = useState(false);
   const history = useHistory();
   const mySerialNo = useContext(SerialNoContext);
 
@@ -54,6 +56,7 @@ function StoryPage(props) {
         if (!res.ok) { return; }
         const newReview = await res.json();
         setReviews([...reviews, newReview].sort((a,b) => a.publish_date >= b.publish_date ? -1 : 1));
+        setIHaveReview(true);
       })
       .catch(err => {
           console.error(err);
@@ -71,6 +74,7 @@ function StoryPage(props) {
     .then(async (res) => {
       if (!res.ok) { return; }
       setReviews(reviews.filter(review => review.user_serial_no !== mySerialNo));
+      setIHaveReview(false);
     })
     .catch(err => console.error(err));
   }
@@ -122,14 +126,16 @@ function StoryPage(props) {
                 <Story {...story} />
             </div>
             <div className="story-page__rate-story">
-              <p>{myRating ? 'Your rating' : 'Rate story?'}</p>
-              <div className="story-page__star-ratings-container">
                 {
                   loadingRating ?
                   <p>Processing...</p> :
-                  <StarRatings rating={myRating ?? 0} name="user-star-rating" onChangeRating={handleChangeRating} />
+                  <>
+                    <p>{myRating ? 'Your rating' : 'Rate story?'}</p>
+                    <div className="story-page__star-ratings-container">
+                          <StarRatings rating={myRating ?? 0} name="user-star-rating" onChangeRating={handleChangeRating} />
+                    </div>
+                  </>
                 }
-              </div>
             </div>
         </div>
       </section>
@@ -137,11 +143,15 @@ function StoryPage(props) {
         
       <section className="section section--write-review">
         <div className="container-fluid">
-            <form onSubmit={handleWriteReview}>
+            <form className="write-review-form" onSubmit={handleWriteReview}>
               <div className="form-container">
                   <h2>Write a review</h2>
-                  <textarea name="reviewFields.text_content" />
-                  <button type="submit">Submit</button>
+                  <textarea name="reviewFields.text_content" disabled={iHaveReview} value={reviewValue} onChange={e => setReviewValue(e.target.value)} />
+                  {
+                    iHaveReview ?
+                    <button className="button button--red" type="button" onClick={() => onDeleteReview()}>Delete</button> :
+                    <button className="button button--green" type="submit">Submit</button>
+                  }
               </div>
             </form>
         </div>
@@ -154,7 +164,13 @@ function StoryPage(props) {
             {
               reviews.map((item) => (
                 <React.Fragment key={item.user_serial_no}>
-                  <Review {...item} story_id={story.story_id} deleteReview={onDeleteReview} />
+                  <Review
+                    {...item}
+                    story_id={story.story_id}
+                    deleteReview={onDeleteReview}
+                    setIHaveReview={setIHaveReview}
+                    setReviewValue={setReviewValue}
+                  />
                 </React.Fragment>
               ))
             }

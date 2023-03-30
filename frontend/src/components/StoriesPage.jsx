@@ -71,7 +71,7 @@ function StoriesPage() {
                         )
                         .map(item => (
                             <div className="container-fluid" key={item.story_id}>
-                                <Link to={`/story/${item.story_id}`}>
+                                <Link to={`/stories/${item.story_id}`}>
                                     <Story {...item} />
                                 </Link>
                             </div>

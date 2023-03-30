@@ -1,26 +1,57 @@
-import React, { useContext } from 'react'; // ES6 js
-import {Link} from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react'; // ES6 js
+import {Link, useHistory} from 'react-router-dom';
 
 import SerialNoContext from '../contexts/SerialNoContext';
 
 function Nav() {
     const mySerialNo = useContext(SerialNoContext);
+    const history = useHistory();
+    const [currentPath, setCurrentPath] = useState(history.location.pathname);
+
+    useEffect(() => {
+        setCurrentPath(history.location.pathname);
+        history.listen(({pathname}) => {
+        setCurrentPath(pathname);
+       }) 
+    }, [])
+
+    const renderUserForm = () => {
+        return (
+            <form method='POST' action='/addUser' onSubmit={(e) => e.preventDefault()}>
+            {
+                !mySerialNo ?
+                <button 
+                    className={`button button--green`}
+                    onClick={
+                        () => fetch('/addUser', {method: 'POST'})
+                            .then(({ok}) => ok && history.go(0))
+                    }>
+                    Join Anon Tales
+                </button> :
+                <button 
+                    className={`button button--red`}
+                    onClick={
+                        () => fetch('/deleteUser', {method: 'DELETE'})
+                            .then(({ok}) => ok && history.go(0))
+                    }>
+                    Delete Anon Tales
+                </button>
+            }
+            </form>
+        );
+    }
 
     return(
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark top">
+        <nav className="nav navbar navbar-expand-lg navbar-dark bg-dark top">
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navMainMenu" aria-controls="navMainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon"></span>
             </button>
             <div id="navMainMenu" className="navbar-collapse collapse">
-                <div className="navbar-nav ml-auto">
-                    <Link to='/' className="nav-item nav-link active">Home</Link>
-                    <Link to='/stories' className="nav-item nav-link">Stories</Link>
-                    <Link to='/prompts' className="nav-item nav-link">Prompts</Link>
-                    {
-                        mySerialNo &&
-                        <>
-                        </>
-                    }
+                <div className="nav__links navbar-nav ml-auto">
+                    <Link to='/' className={`nav-item nav-link ${currentPath === '/' ? 'action' : ''}`}>Home</Link>
+                    <Link to='/stories' className={`nav-item nav-link ${currentPath?.startsWith?.('/stories') ? 'active' : ''}`}>Stories</Link>
+                    <Link to='/prompts' className={`nav-item nav-link ${currentPath?.startsWith?.('/prompts') ? 'active' : ''}`}>Prompts</Link>
+                    {renderUserForm()}
                 </div>
             </div>
         </nav>

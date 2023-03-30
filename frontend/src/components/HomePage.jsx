@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 
 import SerialNoContext from '../contexts/SerialNoContext';
 
-function Home() {
+function HomePage() {
     const history = useHistory();
     const mySerialNo = useContext(SerialNoContext);
     const [genres, setGenres] = useState(null);
@@ -46,30 +46,6 @@ function Home() {
         });
     }
 
-    const renderUserForm = () => {
-        return (
-            <form method='POST' action='/addUser' onSubmit={(e) => e.preventDefault()}>
-            {
-                !mySerialNo ?
-                <button 
-                    onClick={
-                        () => fetch('/addUser', {method: 'POST'})
-                            .then(({ok}) => ok && history.go(0))
-                    }>
-                    ADD SELF
-                </button> :
-                <button 
-                    onClick={
-                        () => fetch('/deleteUser', {method: 'DELETE'})
-                            .then(({ok}) => ok && history.go(0))
-                    }>
-                    DELETE SELF
-                </button>
-            }
-            </form>
-        );
-    }
-
     const renderStoryForm = () => {
         return (
             <form onSubmit={(e) => {handleSubmit(e, 'storyFields', '/addStory')}} className="form form--add-story">
@@ -77,11 +53,11 @@ function Home() {
                     <h2>Write a story</h2>
                     <label>
                         <span>Title</span>
-                        <input name="storyFields.title" type="text" maxLength={100} />
+                        <input name="storyFields.title" type="text" maxLength={100} required />
                     </label>
                     <label>
                         <span>Story</span>
-                        <textarea name="storyFields.text_content" maxLength={5000} />
+                        <textarea name="storyFields.text_content" maxLength={5000} required />
                     </label>
                     <fieldset className="genres-fieldset">
                         <details>
@@ -96,7 +72,7 @@ function Home() {
                         </div>
                         </details>
                     </fieldset>
-                    <button type="submit">Submit</button>
+                    <button className={`button button--green`} type="submit">Submit</button>
                 </div>
             </form>
         );
@@ -109,7 +85,7 @@ function Home() {
                 <h2>Write a prompt</h2>
                     <label>
                         <span>Entry</span>
-                        <textarea name="promptFields.text_content" maxLength={5000} />
+                        <textarea name="promptFields.text_content" maxLength={5000} required />
                     </label>
                     <fieldset className="genres-fieldset">
                         <details>
@@ -124,41 +100,41 @@ function Home() {
                             </div>
                         </details>
                     </fieldset>
-                    <button type="submit">Submit</button>
+                    <button className="button button--green" type="submit">Submit</button>
                 </div>
             </form>
         );
     }
 
-    return(
-        <section className="home">
-            <div className="container-fluid">
-                <h1 className="mt-5">Anon Tales</h1>
-                {
-                    renderUserForm()
-                }
-                {
-                    mySerialNo &&
-                    <>
-                        <section className="section section--story-form">
-                            {
-                                genres ?
-                                renderStoryForm() :
-                                <p>Loading story form...</p>
-                            }
-                        </section>
-                        <section className="section section--prompt-form">
-                            {
-                                genres ?
-                                renderPromptForm() :
-                                <p>Loading prompt form...</p>
-                            }
-                        </section>
-                    </>
-                }
-            </div>
-        </section>
+    return (
+        <div className="page page--home home-page">
+                    <h1 className="heading-primary">Anon Tales</h1>
+                    {
+                        mySerialNo &&
+                        <>
+                            <section className="section section--story-form">
+                                <div className="container-fluid">
+                                {
+                                    genres ?
+                                    renderStoryForm() :
+                                    <p>Loading story form...</p>
+                                }
+                                </div>
+                            </section>
+
+                            <section className="section section--prompt-form">
+                                <div className="container-fluid">
+                                    {
+                                        genres ?
+                                        renderPromptForm() :
+                                        <p>Loading prompt form...</p>
+                                    }
+                                </div>
+                            </section>
+                        </>
+                    }
+        </div>
     );
 }
 
-export default Home;
+export default HomePage;
