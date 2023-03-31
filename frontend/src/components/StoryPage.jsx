@@ -15,6 +15,7 @@ function StoryPage(props) {
   const [loadingRating, setLoadingRating] = useState(false);
   const [reviewValue, setReviewValue] = useState('');
   const [iHaveReview, setIHaveReview] = useState(false);
+  const [storyIsMine, setStoryIsMine] = useState(true);
   const history = useHistory();
   const mySerialNo = useContext(SerialNoContext);
 
@@ -23,7 +24,10 @@ function StoryPage(props) {
   }, []);
 
   useEffect( () => {
-    story && setMyRating(story.my_rating);
+    if (story) {
+      setMyRating(story.my_rating);
+      setStoryIsMine(story.user_serial_no === mySerialNo);
+    }
   }, [story]);
 
   const fetchItems = async () => {
@@ -118,44 +122,49 @@ function StoryPage(props) {
     )
   }
 
-  return(
+  return (
     <div className="page page--story story-page">
       <section className="section section--story">
         <div className="container-fluid">
             <div className="story-container">
                 <Story {...story} />
             </div>
-            <div className="story-page__rate-story">
-                {
-                  loadingRating ?
-                  <p>Processing...</p> :
-                  <>
-                    <p>{myRating ? 'Your rating' : 'Rate story?'}</p>
-                    <div className="story-page__star-ratings-container">
-                          <StarRatings rating={myRating ?? 0} name="user-star-rating" onChangeRating={handleChangeRating} />
-                    </div>
-                  </>
-                }
-            </div>
-        </div>
-      </section>
-
-        
-      <section className="section section--write-review">
-        <div className="container-fluid">
-            <form className="write-review-form" onSubmit={handleWriteReview}>
-              <div className="form-container">
-                  <h2>Write a review</h2>
-                  <textarea name="reviewFields.text_content" disabled={iHaveReview} value={reviewValue} onChange={e => setReviewValue(e.target.value)} />
+            {
+              !storyIsMine &&
+              <div className="story-page__rate-story">
                   {
-                    iHaveReview ?
-                    <button className="button button--red" type="button" onClick={() => onDeleteReview()}>Delete</button> :
-                    <button className="button button--green" type="submit">Submit</button>
+                    loadingRating ?
+                    <p>Processing...</p> :
+                    <>
+                      <p>{myRating ? 'Your rating' : 'Rate story?'}</p>
+                      <div className="story-page__star-ratings-container">
+                            <StarRatings rating={myRating ?? 0} name="user-star-rating" onChangeRating={handleChangeRating} />
+                      </div>
+                    </>
                   }
               </div>
-            </form>
+            }
         </div>
       </section>
+      
+      {
+        !storyIsMine &&
+        <section className="section section--write-review">
+          <div className="container-fluid">
+              <form className="write-review-form" onSubmit={handleWriteReview}>
+                <div className="form-container">
+                    <h2>Write a review</h2>
+                    <textarea name="reviewFields.text_content" disabled={iHaveReview} value={reviewValue} onChange={e => setReviewValue(e.target.value)} />
+                    {
+                      iHaveReview ?
+                      <button className="button button--red" type="button" onClick={() => onDeleteReview()}>Delete</button> :
+                      <button className="button button--green" type="submit">Submit</button>
+                    }
+                </div>
+              </form>
+          </div>
+        </section>
+      }
 
         
       <section className="section section--reviews">
@@ -163,6 +172,7 @@ function StoryPage(props) {
           <h2>All reviews</h2>
           <div className="reviews">
           {
+            reviews.length > 0 ?
             reviews.map((item) => (
               <React.Fragment key={item.user_serial_no}>
                 <Review
@@ -173,7 +183,8 @@ function StoryPage(props) {
                   setReviewValue={setReviewValue}
                 />
               </React.Fragment>
-            ))
+            )) :
+            'No reviews yet'
           }
           </div>
         </div>

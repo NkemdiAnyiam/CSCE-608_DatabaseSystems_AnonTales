@@ -19,7 +19,7 @@ function Story({story_id, title, avg_rating, num_ratings, genre_names, text_cont
               />
               <span>({num_ratings} ratings)</span>
             </> :
-            <span>N/A</span>
+            <span>No ratings yet</span>
           }
         </div>
 
