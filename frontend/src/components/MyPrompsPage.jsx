@@ -20,7 +20,7 @@ function MyPromptsPage() {
 
   const fetchItems = async () => {
     const datas = await Promise.all(
-        [fetch('/prompts'),
+        [fetch('/myPrompts'),
         fetch('/genres')]
     );
     const prompts = await datas[0].json();
