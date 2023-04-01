@@ -1,5 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Link } from 'react-router-dom';
+
+import SerialNoContext from '../contexts/SerialNoContext';
 
 import Story from '../components/Story';
 import StarRatings from './StarRatings';
@@ -13,8 +15,44 @@ function StoriesPage() {
     const [genres, setGenres] = useState([]);
     const [genreFilters, setGenreFilters] = useState([]);
     const [ratingFilter, setRatingFilter] = useState([0]);
-    const [sortingFunc, setSortingFunc] = useState(null);
+    const [sortingMode, setSortingMode] = useState('A');
     const [dataLoaded, setDataLoaded] = useState(false);
+    const mySerialNo = useContext(SerialNoContext);
+
+    function getSortingFunc(sortMode) {
+        switch(sortMode) {
+            case 'A':
+                return (storyA, storyB) => storyA.title.toLowerCase() <= storyB.title.toLowerCase() ? -1 : 1;
+            case 'Z':
+                return (storyA, storyB) => storyA.title.toLowerCase() >= storyB.title.toLowerCase() ? -1 : 1;
+            case 'High':
+                return (storyA, storyB) => {
+                    if (storyA.avg_rating > storyB.avg_rating) { return -1; }
+                    else if (storyA.avg_rating < storyB.avg_rating) { return 1; }
+                    else return storyA.title.toLowerCase() <= storyB.title.toLowerCase() ? -1 : 1;
+                };
+            case 'Low':
+                return (storyA, storyB) => {
+                    if (storyA.avg_rating < storyB.avg_rating) { return -1; }
+                    else if (storyA.avg_rating > storyB.avg_rating) { return 1; }
+                    else return storyA.title.toLowerCase() <= storyB.title.toLowerCase() ? -1 : 1;
+                }
+            case 'Recent':
+                return (storyA, storyB) => {
+                    if (storyA.publish_date > storyB.publish_date) { return -1; }
+                    else if (storyA.publish_date < storyB.publish_date) { return 1; }
+                    else return storyA.title.toLowerCase() <= storyB.title.toLowerCase() ? -1 : 1;
+                }
+            case 'Oldest':
+                return (storyA, storyB) => {
+                    if (storyA.publish_date < storyB.publish_date) { return -1; }
+                    else if (storyA.publish_date > storyB.publish_date) { return 1; }
+                    else return storyA.title.toLowerCase() <= storyB.title.toLowerCase() ? -1 : 1;
+                }
+            default:
+                throw new Error(`ERROR: Invalid sort mode ${sortMode}`);
+        }
+    }
 
     const fetchItems = async () => {
     const datas = await Promise.all(
@@ -46,21 +84,7 @@ function StoriesPage() {
     }
 
     const handleSortByChange = (e) => {
-        const target_val = Number.parseInt(e.target.value);
-        let sortFunc = null;
-        switch(target_val) {
-            case 0:
-                sortFunc = ({title: titleA}, {title: titleB}) => titleA.toLowerCase() <= titleB.toLowerCase() ? -1 : 1;
-            case 1:
-                sortFunc = ({title: titleA}, {title: titleB}) => titleA.toLowerCase() >= titleB.toLowerCase() ? -1 : 1;
-            case 2:
-                sortFunc = ({avg_rating: avg_ratingA}, {avg_rating: avg_ratingB}) => avg_ratingA <= avg_ratingB ? -1 : 1;
-            case 3:
-                sortFunc = ({avg_rating: avg_ratingA}, {avg_rating: avg_ratingB}) => avg_ratingA >= avg_ratingB ? -1 : 1;
-            default:
-                throw new Error(`ERROR: Invalid case ${target_val} in handleSortByChange`);
-        }
-        setSortingFunc(sortFunc);
+        setSortingMode(e.target.value);
     }
     
     const renderRatingFilter = (rating, showAndUp) => {
@@ -85,7 +109,7 @@ function StoriesPage() {
             <h1 className="heading-primary">Stories</h1>
 
             <section className="section section--genre-filters">
-                <div className="container-fluid">
+                <div className="container-fluid container-fluid--white">
                     <form onChange={handleGenreFilterChange}>
                         <fieldset className="filters-fieldset">
                             <details className="filters-dropdown">
@@ -109,7 +133,7 @@ function StoriesPage() {
                                 <summary>Ratings</summary>
                                 <div className="filters">
                                     <label key={0}>
-                                        <input type="radio" name="ratings" value={0} />
+                                        <input type="radio" name="ratings" value={0} defaultChecked />
                                         <span>All</span>
                                     </label>
                                     {renderRatingFilter(5)}
@@ -122,32 +146,40 @@ function StoriesPage() {
                         </fieldset>
                     </form>
 
-                    {/* <form onChange={handleSortByChange}>
+                    <form onChange={handleSortByChange}>
                         <fieldset className="filters-fieldset">
                             <details className="filters-dropdown">
                                 <summary>Sort by</summary>
                                 <div className="filters">
                                     <label key={0}>
-                                        <input type="radio" name="ratings" value={0} />
+                                        <input type="radio" name="ratings" value={'A'} defaultChecked />
                                         <span>Title (A—Z)</span>
                                     </label>
                                     <label key={1}>
-                                        <input type="radio" name="ratings" value={0} />
+                                        <input type="radio" name="ratings" value={'Z'} />
                                         <span>Title (Z—A)</span>
                                     </label>
                                     <label key={2}>
-                                        <input type="radio" name="ratings" value={0} />
+                                        <input type="radio" name="ratings" value={'High'} />
                                         <span>Rating (High—Low)</span>
                                     </label>
                                     <label key={3}>
-                                        <input type="radio" name="ratings" value={0} />
+                                        <input type="radio" name="ratings" value={'Low'} />
                                         <span>Rating (Low—High)</span>
+                                    </label>
+                                    <label key={4}>
+                                        <input type="radio" name="ratings" value={'Recent'} />
+                                        <span>Most recent</span>
+                                    </label>
+                                    <label key={5}>
+                                        <input type="radio" name="ratings" value={'Oldest'} />
+                                        <span>Oldest</span>
                                     </label>
                                 </div>
                             </details>
                             
                         </fieldset>
-                    </form> */}
+                    </form>
                 </div>
             </section>
 
@@ -163,12 +195,12 @@ function StoriesPage() {
                                 ratingFilter[0] === 0
                                 || story.avg_rating && story.avg_rating >= ratingFilter[0]
                             )
-                        })
+                        }).sort(getSortingFunc(sortingMode))
                         )
                     )
                     .map(item => (
                         <Link className="stories-page__story-link-wrapper" to={`/stories/${item.story_id}`}>
-                            <div className="container-fluid" key={item.story_id}>
+                            <div className={`container-fluid ${item.user_serial_no === mySerialNo ? 'container-fluid--gold' : ''}`} key={item.story_id}>
                                 <Story {...item} />
                             </div>
                         </Link>
