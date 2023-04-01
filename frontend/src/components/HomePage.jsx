@@ -96,7 +96,7 @@ function HomePage() {
                             <div className="genres">
                                 {genres.map(({genre_name}) => (
                                     <label key={genre_name}>
-                                        <input type="checkbox" name="genre_names" value={genre_name} />
+                                        <input type="checkbox" name="genre_names" value={genre_name} maxLength={300} />
                                         {genre_name}
                                     </label>
                                 ))}

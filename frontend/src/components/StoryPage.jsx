@@ -175,6 +175,7 @@ function StoryPage(props) {
                       disabled={iHaveReview}
                       readOnly={iHaveReview}
                       value={reviewValue}
+                      maxLength={500}
                       onChange={e => setReviewValue(e.target.value)}
                       required
                     />
