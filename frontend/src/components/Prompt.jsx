@@ -1,6 +1,48 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 
-function Prompt({prompt_id, genre_names, text_content, publish_date}) {
+import SerialNoContext from '../contexts/SerialNoContext';
+
+import LoadingIcon from './LoadingIcon';
+
+function Prompt({prompt_id, genre_names, text_content, publish_date, user_serial_no}) {
+    const [deletingPrompt, setDeletingPrompt] = useState(false);
+    const [promptDeleted, setPromptDeleted] = useState(false);
+    const mySerialNo = useContext(SerialNoContext)
+
+    const onDelete = async (e) => {
+      e.preventDefault();
+      setDeletingPrompt(true);
+
+      await fetch('/deletePrompt', {
+        method: 'DELETE',
+        body: JSON.stringify({promptFields: {prompt_id}}),
+        headers:{'Content-Type':'application/json'}
+      })
+      .then(({ok}) => {
+        if (ok) {
+          setPromptDeleted(true);
+          setDeletingPrompt(false);
+        }
+      })
+      .catch(err => {
+        setDeletingPrompt(false);
+        console.error(err);
+        alert('Error occured while attempting to delete prompt');
+      })
+    }
+
+    if (promptDeleted) {
+      return <div className="prompt"><div>{'[Deleted]'}</div></div>;
+    }
+
+    if (deletingPrompt) {
+      return (
+        <div className="prompt">
+          <LoadingIcon message={`Deleting prompt`} dark />
+        </div>
+      )
+    }
+
     return(
       <div className="prompt">
         <div>
@@ -8,14 +50,19 @@ function Prompt({prompt_id, genre_names, text_content, publish_date}) {
         </div>
         {
           genre_names && (
-            <div className='story__genres'>
+            <div className='prompt__genres'>
             {
               genre_names.split(',').map(genre_name => (<div className="genre" key={genre_name}>{genre_name}</div>))
             }
           </div>
           )
         }
-          <div>{text_content}</div>
+        <div>{text_content}</div>
+
+        {
+          mySerialNo === user_serial_no &&
+          <button className="prompt__delete-button button button--red" onClick={onDelete}>Delete</button>
+        }
       </div> 
     );
 }

@@ -34,7 +34,6 @@ function PromptsPage() {
         switch(sortMode) {
             case 'Recent':
                 return (promptA, promptB) => {
-                    console.log(promptA, promptB)
                     if (promptA.publish_date > promptB.publish_date) { return -1; }
                     else if (promptA.publish_date < promptB.publish_date) { return 1; }
                     else return promptA.text_content.toLowerCase() <= promptB.text_content.toLowerCase() ? -1 : 1;

@@ -1,8 +1,49 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
+import LoadingIcon from './LoadingIcon';
+
+import SerialNoContext from '../contexts/SerialNoContext';
 
 import StarRatings from './StarRatings';
 
-function Story({story_id, title, avg_rating, num_ratings, genre_names, text_content, publish_date}) {
+function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_names, text_content, publish_date}) {
+    const [deletingStory, setDeletingStory] = useState(false);
+    const [storyDeleted, setStoryDeleted] = useState(false);
+    const mySerialNo = useContext(SerialNoContext);
+
+    const onDelete = async (e) => {
+      e.preventDefault();
+      setDeletingStory(true);
+
+      await fetch('/deleteStory', {
+        method: 'DELETE',
+        body: JSON.stringify({storyFields: {story_id}}),
+        headers:{'Content-Type':'application/json'}
+      })
+      .then(({ok}) => {
+        if (ok) {
+          setStoryDeleted(true);
+          setDeletingStory(false);
+        }
+      })
+      .catch(err => {
+        setDeletingStory(false);
+        console.error(err);
+        alert('Error occured while attempting to delete story');
+      });
+    }
+
+    if (storyDeleted) {
+      return <div className="story"><div className="story__title">{'[Deleted]'}</div></div>;
+    }
+
+    if (deletingStory) {
+      return (
+        <div className="story">
+          <LoadingIcon message={`Deleting ${title}`} dark />
+        </div>
+      )
+    }
+
     return(
       <div className="story">
         <h2 className="story__title">{title}</h2>
@@ -36,6 +77,11 @@ function Story({story_id, title, avg_rating, num_ratings, genre_names, text_cont
           )
         }
         <div className={`story__text-content`}>{text_content}</div>
+        
+        {
+          mySerialNo === user_serial_no &&
+          <button className="story__delete-button button button--red" onClick={onDelete}>Delete</button>
+        }
       </div> 
     );
 }

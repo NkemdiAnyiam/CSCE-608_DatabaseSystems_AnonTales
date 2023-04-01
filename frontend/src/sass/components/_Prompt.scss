@@ -14,11 +14,16 @@
 
   &__genres {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
 
   &__text-content {
     line-height: 1.2;
+  }
+
+  &__delete-button {
+    margin-top: 1rem;
   }
 }
 

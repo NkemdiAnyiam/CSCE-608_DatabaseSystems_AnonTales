@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import SerialNoContext from '../contexts/SerialNoContext';
 
 import Logo from './Logo';
+import LoadingIcon from './LoadingIcon';
 
 function HomePage() {
     const history = useHistory();
@@ -123,7 +124,7 @@ function HomePage() {
                         {
                             genres ?
                             renderStoryForm() :
-                            <p>Loading story form...</p>
+                            <LoadingIcon message={'Loading story form'} dark />
                         }
                         </div>
                     </section>
@@ -133,7 +134,7 @@ function HomePage() {
                             {
                                 genres ?
                                 renderPromptForm() :
-                                <p>Loading prompt form...</p>
+                            <LoadingIcon message={'Loading prompt form'} dark />
                             }
                         </div>
                     </section>

@@ -281,6 +281,33 @@ router.post('/addStory', async (req, res) => {
     });
 });
 
+router.delete('/deleteStory', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    const {
+        story_id,
+    } = req.body.storyFields;
+
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = sqlDeleteStatement(Stories, `(story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')`);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err){reject(err); return;};
+                console.log('Story deleted');
+                resolve(result);
+            });
+        });
+    })
+    .then(async (result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
 
 router.get('/genres', async (req, res) => {
     new Promise((resolve, reject) => {
@@ -561,6 +588,34 @@ router.post('/addPrompt', async (req, res) => {
         }
     })
     .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        console.error(err);
+        res.status(500).end();
+    });
+});
+
+router.delete('/deletePrompt', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    const {
+        prompt_id,
+    } = req.body.promptFields;
+
+    new Promise((resolve, reject) => {
+        pool.getConnection( (err, conn) => {
+            if (err) throw err;
+
+            const qry = sqlDeleteStatement(Prompts, `(prompt_id, user_serial_no) = ('${prompt_id}', '${user_serial_no}')`);
+            conn.query(qry, (err, result) => {
+                conn.release();
+                if (err){reject(err); return;};
+                console.log('Prompt deleted');
+                resolve(result);
+            });
+        });
+    })
+    .then(async (result) => {
         res.end();
     })
     .catch((err) => {
