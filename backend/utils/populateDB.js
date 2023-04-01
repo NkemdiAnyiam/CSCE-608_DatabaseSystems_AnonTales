@@ -26,7 +26,7 @@ const {
 // Run seed
 async function populateDB() {
     await new Promise((resolve, reject) => {
-        fs.readFile('../data/create_db_revised.sql', 'utf8', (err, data) => {
+        fs.readFile('../data/create_db_schema.sql', 'utf8', (err, data) => {
             poolMulti.getConnection( (err, conn) => {
                 if (err) { console.error(err); reject(genericErrMes); return; }
     
