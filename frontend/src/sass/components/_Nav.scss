@@ -8,7 +8,30 @@
   background-color: rgba($color-violet-darkest, 0.7) !important;
   box-shadow: 2px 2px 3px rgba(black, 0.7);
 
+  &__logo {
+    color: white;
+    font-size: 2rem;
+    text-decoration: none !important;
+
+    &:link, &:visited { color: white; }
+
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .logo {
+    margin-right: auto;
+    fill: white;
+    height: 2.5rem;
+  }
+
+  .navbar-toggler {
+    margin-left: auto;
+  }
+
   &__links {
+    justify-content: flex-end;
     gap: 2rem;
     @media only screen and (max-width: 992px) {
       gap: 1rem;
@@ -17,5 +40,6 @@
 
   &__link {
     transition: color 0.1s;
+    margin-left: auto;
   }
 }

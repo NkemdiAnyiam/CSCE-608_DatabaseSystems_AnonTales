@@ -3,6 +3,8 @@ import { useHistory } from 'react-router-dom';
 
 import SerialNoContext from '../contexts/SerialNoContext';
 
+import Logo from './Logo';
+
 function HomePage() {
     const history = useHistory();
     const mySerialNo = useContext(SerialNoContext);
@@ -108,7 +110,10 @@ function HomePage() {
 
     return (
         <div className="page page--home home-page">
-            <h1 className="heading-primary">Anon Tales</h1>
+            <header className="header">
+                <h1 className="heading-primary">Anon Tales</h1>
+                <Logo />
+            </header>
             <p className="subheading">Anonymous tales from the internet</p>
             {
                 mySerialNo ?

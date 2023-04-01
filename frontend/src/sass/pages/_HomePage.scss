@@ -3,7 +3,7 @@
   // flex-direction: column;
   justify-content: space-around;
   grid-template-areas:
-    "heading heading"
+    "header header"
     "subheading subheading"
     "write-story write-prompt"
   ;
@@ -13,17 +13,32 @@
   @media only screen and (max-width: 1200px) {
     grid-template-columns: 1fr;
     grid-template-areas:
-    "heading"
+    "header"
     "subheading"
     "write-story"
     "write-prompt";
     justify-items: center;
   }
 
+  .header {
+    grid-area: header;
+    color: white;
+    width:  max-content;
+    margin: 0 auto;
+    
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+
+    .logo {
+      fill: currentColor;
+      height: 3rem;
+    }
+  }
+
   .heading-primary {
     margin: 0 auto;
     color: white;
-    grid-area: heading;
   }
 
   .subheading {

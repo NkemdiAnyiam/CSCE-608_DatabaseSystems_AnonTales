@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'; // ES6 js
 import {Link, useHistory} from 'react-router-dom';
 
 import SerialNoContext from '../contexts/SerialNoContext';
+import Logo from './Logo';
 
 function Nav() {
     const mySerialNo = useContext(SerialNoContext);
@@ -17,32 +18,29 @@ function Nav() {
 
     const renderUserForm = () => {
         return (
-            <form method='POST' action='/addUser' onSubmit={(e) => e.preventDefault()}>
-            {
-                !mySerialNo ?
-                <button 
-                    className={`button button--green`}
-                    onClick={
-                        () => fetch('/addUser', {method: 'POST'})
-                            .then(({ok}) => ok && history.go(0))
-                    }>
-                    Join Anon Tales
-                </button> :
-                <button 
-                    className={`button button--red`}
-                    onClick={
-                        () => fetch('/deleteUser', {method: 'DELETE'})
-                            .then(({ok}) => ok && history.go(0))
-                    }>
-                    Delete Anon Tales
-                </button>
-            }
-            </form>
+            !mySerialNo ?
+            <button 
+                className={`button button--green`}
+                onClick={
+                    () => fetch('/addUser', {method: 'POST'})
+                        .then(({ok}) => ok && history.go(0))
+                }>
+                Join Anon Tales
+            </button> :
+            <button 
+                className={`button button--red`}
+                onClick={
+                    () => fetch('/deleteUser', {method: 'DELETE'})
+                        .then(({ok}) => ok && history.go(0))
+                }>
+                Delete Anon Tales
+            </button>
         );
     }
 
     return(
         <nav className="nav navbar navbar-expand-lg navbar-dark bg-dark top">
+            <Link to='/' className="nav__logo"><Logo /> Anon Tales</Link>
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navMainMenu" aria-controls="navMainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon"></span>
             </button>
