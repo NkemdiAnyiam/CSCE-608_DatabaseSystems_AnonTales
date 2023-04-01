@@ -469,7 +469,12 @@ router.post('/addReview', async (req, res) => {
                 const qry = sqlInsertStatement(Reviews, review);
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) { console.error(err); reject(genericErrMes); return; }
+                    if (err) {
+                        console.error(err);
+                        if (err.code === 'ER_DUP_ENTRY') {reject('You have already written a review for this story. Try refreshing the page.'); }
+                        else { reject(genericErrMes); }
+                        return;
+                    }
                     // console.log('New review added');
                     resolve(review);
                 });
