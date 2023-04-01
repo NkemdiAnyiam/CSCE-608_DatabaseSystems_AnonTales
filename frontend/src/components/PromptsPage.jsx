@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useContext} from 'react';
-import { Link } from 'react-router-dom';
 
 import SerialNoContext from '../contexts/SerialNoContext';
 
@@ -23,6 +22,16 @@ function PromptsPage({showOnlyMine}) {
         [fetch(showOnlyMine ? '/myPrompts' : '/prompts'),
         fetch('/genres')]
     );
+    if (!datas[0].ok) {
+        const err = await datas[0].json();
+        alert(err);
+        return;
+    }
+    if (!datas[1].ok) {
+        const err = await datas[1].json();
+        alert(err);
+        return;
+    }
     const prompts = await datas[0].json();
     const genres = await datas[1].json();
     setPrompts(prompts);

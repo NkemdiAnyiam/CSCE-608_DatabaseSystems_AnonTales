@@ -37,6 +37,16 @@ function StoryPage(props) {
         [fetch('/story'    +`?story_id=${props.story_id}`),
         fetch('/reviews'  +`?story_id=${props.story_id}`)]
       );
+      if (!datas[0].ok) {
+        const err = await datas[0].json();
+        alert(err);
+        return;
+      }
+      if (!datas[1].ok) {
+        const err = await datas[1].json();
+        alert(err);
+        return;
+      }
       const story = (await datas[0].json())[0];
       const reviews = await datas[1].json();
       setStory(story);
@@ -60,13 +70,16 @@ function StoryPage(props) {
 
     fetch('/addReview', {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}})
       .then(async (res) => {
-        if (!res.ok) { return; }
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err);
+        }
+
         const newReview = await res.json();
         setReviews([...reviews, newReview].sort((a,b) => a.publish_date >= b.publish_date ? -1 : 1));
         setIHaveReview(true);
       })
       .catch(err => {
-          console.error(err);
           alert(err);
       })
       .finally(() => {
@@ -87,11 +100,15 @@ function StoryPage(props) {
       headers:{'Content-Type':'application/json'}
     })
     .then(async (res) => {
-      if (!res.ok) { return; }
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err);
+      }
+
       setReviews(reviews.filter(review => review.user_serial_no !== mySerialNo));
       setIHaveReview(false);
     })
-    .catch(err => console.error(err));
+    .catch(err => alert(err));
   }
 
   const handleChangeRating = (rating) => {
@@ -106,13 +123,17 @@ function StoryPage(props) {
     
     const fetchWrapper = (fetchResult => {
       fetchResult.then(async (res) => {
-        if (!res.ok) { return; }
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err);
+        }
+
         const ratingData = await res.json();
         setStory({...story, ...ratingData});
         setLoadingRating(false);
       })
       .catch(err => {
-        console.error(err);
+        alert(err);
       });
     });
 

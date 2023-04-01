@@ -19,18 +19,19 @@ function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_
         body: JSON.stringify({storyFields: {story_id}}),
         headers:{'Content-Type':'application/json'}
       })
-      .then(({ok}) => {
-        if (ok) {
-          setStoryDeleted(true);
-          setDeletingStory(false);
-          alert('Story successfully deleted');
-          onDelete(story_id);
+      .then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err);
         }
+
+        setStoryDeleted(true);
+        setDeletingStory(false);
+        onDelete(story_id);
       })
       .catch(err => {
         setDeletingStory(false);
-        console.error(err);
-        alert('Error occured while attempting to delete story');
+        alert(err);
       });
     }
 

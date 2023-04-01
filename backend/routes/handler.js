@@ -26,7 +26,10 @@ const {
 const getSerialNumber = () => {
     return new Promise((resolve, reject) => {
         serialNumber((err, serial) => {
-            if (err) reject(err);
+            if (err) { 
+                reject(err);
+                return;
+            }
             resolve(serial);
         })
     })
@@ -38,18 +41,23 @@ router.get('/serialNo', async (req, res) => {
 });
 
 router.post('/addUser', async (req, res) => {
+    const genericErrMes = 'An error occured while attempting to add you to Anon Tales.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 INSERT INTO Users(serial_no) VALUES ('${user_serial_no}');
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
-                // console.log(result);
+                if (err) {
+                    console.error(err);
+                    if (err.code === 'ER_DUP_ENTRY') {reject('You are already part of Anon Tales. Try refreshing the page.'); }
+                    else { reject(genericErrMes); }
+                    return;
+                }
                 console.log('New user addeed');
                 resolve(result);
             });
@@ -59,43 +67,41 @@ router.post('/addUser', async (req, res) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.delete('/deleteUser', async (req, res) => {
+    const genericErrMes = 'An error occurred while attempting to delete you from Anon Tales';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = sqlDeleteStatement(Users, `serial_no = '${user_serial_no}'`);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err){reject(err); return;};
+                if (err) {console.error(err); reject(genericErrMes); return;}
+                if (result.affectedRows === 0) { reject('There is no data associated with you. Try refreshing the page.'); return; }
                 console.log('User deleted');
                 resolve(result);
             });
-    
-            // res.redirect('/stories');
-            res.end();
         });
     })
     .then((result) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.get('/userExists', async (req, res) => {
+    const genericErrMes = 'An error occured while verifying your existence.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT serial_no
@@ -104,7 +110,7 @@ router.get('/userExists', async (req, res) => {
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
+                if (err) {console.error(err); reject(genericErrMes); return; }
                 resolve(result.length > 0);
             });
         });
@@ -113,15 +119,15 @@ router.get('/userExists', async (req, res) => {
         res.send(JSON.stringify(result));
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 })
 
 router.get('/stories', async (req, res) => {
+    const genericErrMes = 'An error occured while fetching stories.';
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, IFNULL(AVG(rating), 0) avg_rating, COUNT(rating) num_ratings, publish_date
@@ -135,7 +141,7 @@ router.get('/stories', async (req, res) => {
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
+                if (err) {console.error(err); reject(genericErrMes); return;}
                 resolve(result);
             });
         });
@@ -145,15 +151,16 @@ router.get('/stories', async (req, res) => {
     })
     .catch((err) => {
         console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.get('/myStories', async (req, res) => {
+    const genericErrMes = 'An error occured while fetching your stories.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, IFNULL(AVG(rating), 0) avg_rating, COUNT(rating) num_ratings, publish_date
@@ -168,7 +175,7 @@ router.get('/myStories', async (req, res) => {
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 resolve(result);
             });
         });
@@ -178,15 +185,16 @@ router.get('/myStories', async (req, res) => {
     })
     .catch((err) => {
         console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 const getStory = async story_id => {
+    const genericErrMes = 'An error occured while fetching this story.';
     const user_serial_no = await getSerialNumber();
     return new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes) };
 
             const qry = minifySqlQuery(`
                 SELECT Stories.story_id, Stories.user_serial_no, title, genre_names, text_content, AVG(rating) avg_rating, COUNT(rating) num_ratings, publish_date,
@@ -209,7 +217,7 @@ const getStory = async story_id => {
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
+                if (err) {console.error(err); reject(genericErrMes); return; }
                 resolve(result);
             });
         });
@@ -223,12 +231,12 @@ router.get('/story', async (req, res) => {
         res.send(JSON.stringify(result));
     })
     .catch((err) => {
-        console.error('--------ERROR IN get /story: ', err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });    
 });
 
 router.post('/addStory', async (req, res) => {
+    const genericErrMes = 'An error occured while attempting to publish your story';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         try {
@@ -239,28 +247,43 @@ router.post('/addStory', async (req, res) => {
             });
 
             pool.getConnection( (err, conn) => {
-                if (err) throw err;
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 let failState = false;
 
                 conn.beginTransaction((err) => {
                     if (err) {
                         conn.release();
-                        throw err;
+                        if (err) { console.error(err); reject(genericErrMes); return; }
                     }
 
                     conn.query(`${sqlInsertStatement(Stories, story)}`, (err, result) => {
-                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
+                        if (err) {
+                            conn.rollback(() => conn.release());
+                            console.error(err);
+                            reject(genericErrMes);
+                            failState = true;
+                        }
                     });
 
                     if (fallsUnder.length > 0)
                     conn.query(`${sqlInsertStatement(FallsUnder, fallsUnder)}`, (err, result) => {
                         if (failState) return;
-                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
+                        if (err) {
+                            conn.rollback(() => conn.release());
+                            console.error(err);
+                            reject(genericErrMes);
+                            failState = true;
+                        }
                     });
 
                     conn.commit((err)=> {
                         if (failState) return;
-                        if (err) { conn.rollback(() => conn.release()); reject(err); return; }
+                        if (err) {
+                            conn.rollback(() => conn.release());
+                            console.error(err);
+                            reject(genericErrMes);
+                            return;
+                        }
                         console.log('Story added');
                         resolve();
                     });
@@ -268,20 +291,20 @@ router.post('/addStory', async (req, res) => {
             });
         }
         catch(err) {
-            console.error('--------ERROR IN /addStory: ');
-            throw err;
+            console.error(err);
+            reject(err);
         }
     })
     .then((result) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.delete('/deleteStory', async (req, res) => {
+    const genericErrMes = 'An error occured while attempting to delete this story';
     const user_serial_no = await getSerialNumber();
     const {
         story_id,
@@ -289,12 +312,20 @@ router.delete('/deleteStory', async (req, res) => {
 
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = sqlDeleteStatement(Stories, `(story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')`);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err){reject(err); return;};
+                if (err) {
+                    console.error(err);
+                    reject(genericErrMes);
+                    return;
+                }
+                if (result.affectedRows === 0) {
+                    reject(`The story being deleted does not exist. Try refreshing the page.`);
+                    return;
+                }
                 console.log('Story deleted');
                 resolve(result);
             });
@@ -304,22 +335,22 @@ router.delete('/deleteStory', async (req, res) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.get('/genres', async (req, res) => {
+    const genericErrMes = 'An error occured while trying to fetch genres.';
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT genre_name FROM Genres ORDER BY genre_name;
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 resolve(result);
             });
         });
@@ -329,16 +360,17 @@ router.get('/genres', async (req, res) => {
     })
     .catch((err) => {
         console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });    
 });
 
 router.get('/reviews', async (req, res) => {
+    const genericErrMes = 'An error occured while fetching reviews';
     const user_serial_no = await getSerialNumber();
     const {story_id} = req.query;
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT user_serial_no, text_content, publish_date, ${nullDefault('num_thumbs_up',0)}, ${nullDefault('num_thumbs_down',0)}, my_thumb_value
@@ -368,9 +400,8 @@ router.get('/reviews', async (req, res) => {
                 ORDER BY publish_date DESC;
             `);
             conn.query(qry, (err, result) => {
-                // console.log(result);
                 conn.release();
-                if (err) throw err;
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 resolve(result);
             });
         });
@@ -379,15 +410,15 @@ router.get('/reviews', async (req, res) => {
         res.send(JSON.stringify(result));
     })
     .catch((err) => {
-        console.error('--------ERROR IN /reviews: ', err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });    
 });
 
 const getReview = async (story_id, user_serial_no) => {
+    const genericErrMes = 'An error occured while fetching this review.';
     return new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT user_serial_no, text_content, publish_date, ${nullDefault('num_thumbs_up',0)}, ${nullDefault('num_thumbs_down',0)}, my_thumb_value
@@ -416,9 +447,8 @@ const getReview = async (story_id, user_serial_no) => {
                 ) AS StoryReviewsThumbs ON (StoryReviews.user_serial_no = StoryReviewsThumbs.reviewer_serial_no)
             `);
             conn.query(qry, (err, result) => {
-                // console.log(result);
                 conn.release();
-                if (err) throw err;
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 resolve(result);
             });
         });
@@ -426,6 +456,7 @@ const getReview = async (story_id, user_serial_no) => {
 }
 
 router.post('/addReview', async (req, res) => {
+    const genericErrMes = 'An error occured while trying to publish your review.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {   
         try {
@@ -438,14 +469,15 @@ router.post('/addReview', async (req, res) => {
                 const qry = sqlInsertStatement(Reviews, review);
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) {reject(err); return;}
+                    if (err) { console.error(err); reject(genericErrMes); return; }
                     console.log('New review added');
                     resolve(review);
                 });
             });
         }
         catch(err) {
-            reject(err);
+            console.log(err);
+            reject(genericErrMes);
         }
     })
     .then(async (result) => {
@@ -453,12 +485,12 @@ router.post('/addReview', async (req, res) => {
         res.send(JSON.stringify(newReview));
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.delete('/deleteReview', async (req, res) => {
+    const genericErrMes = 'An error occured while attemping to delete your review';
     const user_serial_no = await getSerialNumber();
     const {
         story_id,
@@ -466,12 +498,13 @@ router.delete('/deleteReview', async (req, res) => {
 
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = sqlDeleteStatement(Reviews, `(story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')`);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err){reject(err); return;};
+                if (err) { console.error(err); reject(genericErrMes); return; }
+                if (result.affectedRows === 0) { reject('The review being deleted does not exist. Try refreshing the page.'); }
                 console.log('Review deleted');
                 resolve(result);
             });
@@ -481,16 +514,16 @@ router.delete('/deleteReview', async (req, res) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.get('/prompts', async (req, res) => {
+    const genericErrMes = 'An error occured while fetching prompts.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT Prompts.prompt_id, Prompts.user_serial_no, GROUP_CONCAT(genre_name) AS genre_names, text_content, publish_date
@@ -500,7 +533,7 @@ router.get('/prompts', async (req, res) => {
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 resolve(result);
             });
         });
@@ -509,16 +542,16 @@ router.get('/prompts', async (req, res) => {
         res.send(JSON.stringify(result));
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });    
 });
 
 router.get('/myPrompts', async (req, res) => {
+    const genericErrMes = 'An error occured while fetching your prompts.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = minifySqlQuery(`
                 SELECT Prompts.prompt_id, Prompts.user_serial_no, GROUP_CONCAT(genre_name) AS genre_names, text_content, publish_date
@@ -529,7 +562,7 @@ router.get('/myPrompts', async (req, res) => {
             `);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err) {reject(err); return;}
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 resolve(result);
             });
         });
@@ -538,12 +571,12 @@ router.get('/myPrompts', async (req, res) => {
         res.send(JSON.stringify(result));
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });    
 });
 
 router.post('/addPrompt', async (req, res) => {
+    const genericErrMes = 'An error occured while attempting to submit your prompt.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         try {
@@ -554,28 +587,47 @@ router.post('/addPrompt', async (req, res) => {
             });
 
             pool.getConnection( (err, conn) => {
-                if (err) throw err;
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 let failState = false;
 
                 conn.beginTransaction((err) => {
                     if (err) {
                         conn.release();
-                        throw err;
+                        console.error(err);
+                        reject(genericErrMes);
+                        failState = true;
+                        return;
                     }
 
                     conn.query(`${sqlInsertStatement(Prompts, prompt)}`, (err, result) => {
-                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
+                        if (failState) return;
+                        if (err) {
+                            conn.rollback(() => conn.release());
+                            console.error(err);
+                            reject(genericErrMes);
+                            failState = true;
+                        }
                     });
 
                     if (promptsGenre.length > 0)
                     conn.query(`${sqlInsertStatement(PromptsGenre, promptsGenre)}`, (err, result) => {
                         if (failState) return;
-                        if (err) { conn.rollback(() => conn.release()); reject(err); failState = true; }
+                        if (err) {
+                            conn.rollback(() => conn.release());
+                            console.error(err);
+                            reject(genericErrMes);
+                            failState = true;
+                        }
                     });
 
                     conn.commit((err)=> {
                         if (failState) return;
-                        if (err) { conn.rollback(() => conn.release()); reject(err); return; }
+                        if (err) {
+                            conn.rollback(() => conn.release());
+                            console.error(err);
+                            reject(genericErrMes);
+                            return;
+                        }
                         console.log('Prompt added');
                         resolve();
                     });
@@ -583,20 +635,20 @@ router.post('/addPrompt', async (req, res) => {
             });
         }
         catch(err) {
-            console.error('--------ERROR IN /addPrompt: ');
-            throw err;
+            console.error(err);
+            reject(genericErrMes);
         }
     })
     .then((result) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.delete('/deletePrompt', async (req, res) => {
+    const genericErrMes = 'An error occured while attemping to delete your prompt.';
     const user_serial_no = await getSerialNumber();
     const {
         prompt_id,
@@ -604,12 +656,13 @@ router.delete('/deletePrompt', async (req, res) => {
 
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = sqlDeleteStatement(Prompts, `(prompt_id, user_serial_no) = ('${prompt_id}', '${user_serial_no}')`);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err){reject(err); return;};
+                if (err) { console.error(err); reject(genericErrMes); return; }
+                if (result.affectedRows === 0) { reject('The prompt being deleted does not exist. Try refreshing the page.'); }
                 console.log('Prompt deleted');
                 resolve(result);
             });
@@ -619,12 +672,12 @@ router.delete('/deletePrompt', async (req, res) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.post('/addRating', async (req, res) => {
+    const genericErrMes = 'An error occured while attempting to rate this story.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
         try {
@@ -635,20 +688,20 @@ router.post('/addRating', async (req, res) => {
             const rated = Rated.create(story_id, user_serial_no, rating);
     
                 pool.getConnection( (err, conn) => {
-                    if (err) throw err;
+                    if (err) { console.error(err); reject(genericErrMes); return; }
         
                     const qry = sqlInsertStatement(Rated, rated);
                     conn.query(qry, (err, result) => {
                         conn.release();
-                        if (err) {reject(err); return;}
+                        if (err) { console.error(err); reject(genericErrMes); return; }
                         console.log(`Rating ${rating} added`);
                         resolve(result);
                     });
                 });
         }
         catch(err) {
-            console.error('--------ERROR IN /addRating: ');
-            throw err;
+            console.error(err);
+            reject(err);
         }
     })
     .then(async (result) => {
@@ -660,12 +713,12 @@ router.post('/addRating', async (req, res) => {
         res.send(JSON.stringify(ratingData));
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.put('/updateRating', async (req, res) => {
+    const genericErrMes = 'An error occured while attempting to update your rating.';
     const user_serial_no = await getSerialNumber();
     try {
         const {
@@ -675,7 +728,7 @@ router.put('/updateRating', async (req, res) => {
 
         new Promise((resolve, reject) => {
             pool.getConnection( (err, conn) => {
-                if (err) throw err;
+                if (err) { console.error(err); reject(genericErrMes); return; }
 
                 const qry = sqlUpdateStatement(
                     Rated,
@@ -684,7 +737,7 @@ router.put('/updateRating', async (req, res) => {
                 );
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) {reject(err); return;};
+                    if (err) { console.error(err); reject(genericErrMes); return; }
                     console.log('Rating updated');
                     resolve(result);
                 });
@@ -699,8 +752,7 @@ router.put('/updateRating', async (req, res) => {
             res.send(JSON.stringify(ratingData));
         })
         .catch((err) => {
-            console.error(err);
-            res.status(500).end();
+            res.status(500).send(JSON.stringify(err));
         });
     }
     catch(err) {
@@ -710,6 +762,7 @@ router.put('/updateRating', async (req, res) => {
 });
 
 router.delete('/deleteRating', async (req, res) => {
+    const genericErrMes = 'An error occured while attempting to delete your rating.';
     const user_serial_no = await getSerialNumber();
     const {
         story_id,
@@ -717,12 +770,12 @@ router.delete('/deleteRating', async (req, res) => {
 
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = sqlDeleteStatement(Rated, `(story_id, user_serial_no) = ('${story_id}', '${user_serial_no}')`);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err){reject(err); return;};
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 console.log('Rating deleted');
                 resolve(result);
             });
@@ -737,12 +790,12 @@ router.delete('/deleteRating', async (req, res) => {
         res.send(JSON.stringify(ratingData));
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.post('/addThumb', async (req, res) => {
+    const genericErrMes = 'An error occured while attemping to thumb this review.';
     const user_serial_no = await getSerialNumber();
     new Promise((resolve, reject) => {
     try {
@@ -754,43 +807,43 @@ router.post('/addThumb', async (req, res) => {
         const thumbed = Thumbed.create(story_id, reviewer_serial_no, user_serial_no, bin_value);
 
             pool.getConnection( (err, conn) => {
-                if (err) throw err;
+                if (err) { console.error(err); reject(genericErrMes); return; }
     
                 const qry = sqlInsertStatement(Thumbed, thumbed);
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) {reject(err); return;}
+                    if (err) { console.error(err); reject(genericErrMes); return; }
                     console.log(`Thumb ${bin_value === 1 ? 'up' : 'down'} added`);
                     resolve(result);
                 });
             });
     }
     catch(err) {
-        console.error('--------ERROR IN /addThumb: ');
-        throw err;
+        console.error(err);
+        reject(err);
     }
     })
     .then((result) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 
 router.put('/updateThumb', async (req, res) => {
+    const genericErrMes = 'An error occured while attemping to update your thumb on this review.';
     const user_serial_no = await getSerialNumber();
-    try {
-        const {
-            reviewer_serial_no, 
-            story_id,
-            bin_value,
-        } = req.body;
 
-        new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {
+        try {
+            const {
+                reviewer_serial_no, 
+                story_id,
+                bin_value,
+            } = req.body;
             pool.getConnection( (err, conn) => {
-                if (err) throw err;
+                if (err) { console.error(err); reject(genericErrMes); return; }
 
                 const qry = sqlUpdateStatement(
                     Thumbed,
@@ -799,27 +852,27 @@ router.put('/updateThumb', async (req, res) => {
                 );
                 conn.query(qry, (err, result) => {
                     conn.release();
-                    if (err) {reject(err); return;};
+                    if (err) { console.error(err); reject(genericErrMes); return; }
                     console.log('Thumb updated');
                     resolve(result);
                 });
             });
-        })
-        .then((result) => {
-            res.end();
-        })
-        .catch((err) => {
+        }
+        catch(err) {
             console.error(err);
-            res.status(500).end();
-        });
-    }
-    catch(err) {
-        console.error('--------ERROR IN /updateThumb: ');
-        throw err;
-    }
+            reject(err);
+        }
+    })
+    .then((result) => {
+        res.end();
+    })
+    .catch((err) => {
+        res.status(500).send(JSON.stringify(err));
+    });
 });
 
 router.delete('/deleteThumb', async (req, res) => {
+    const genericErrMes = 'An error occured while attemping to delete your thumb on this review.';
     const user_serial_no = await getSerialNumber();
     const {
         story_id,
@@ -828,12 +881,12 @@ router.delete('/deleteThumb', async (req, res) => {
 
     new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
-            if (err) throw err;
+            if (err) { console.error(err); reject(genericErrMes); return; }
 
             const qry = sqlDeleteStatement(Thumbed, `(story_id, reviewer_serial_no, user_serial_no) = ('${story_id}','${reviewer_serial_no}', '${user_serial_no}')`);
             conn.query(qry, (err, result) => {
                 conn.release();
-                if (err){reject(err); return;};
+                if (err) { console.error(err); reject(genericErrMes); return; }
                 console.log('Thumb deleted');
                 resolve(result);
             });
@@ -843,8 +896,7 @@ router.delete('/deleteThumb', async (req, res) => {
         res.end();
     })
     .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        res.status(500).send(JSON.stringify(err));
     });
 });
 

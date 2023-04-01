@@ -18,17 +18,19 @@ function Prompt({prompt_id, genre_names, text_content, publish_date, user_serial
         body: JSON.stringify({promptFields: {prompt_id}}),
         headers:{'Content-Type':'application/json'}
       })
-      .then(({ok}) => {
-        if (ok) {
-          setPromptDeleted(true);
-          setDeletingPrompt(false);
-          onDelete(prompt_id);
+      .then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err);
         }
+        
+        setPromptDeleted(true);
+        setDeletingPrompt(false);
+        onDelete(prompt_id);
       })
       .catch(err => {
         setDeletingPrompt(false);
-        console.error(err);
-        alert('Error occured while attempting to delete prompt');
+        alert(err);
       })
     }
 

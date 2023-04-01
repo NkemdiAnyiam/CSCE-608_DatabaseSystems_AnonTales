@@ -19,6 +19,12 @@ function HomePage() {
 
     const fetchItems = async () => {
         const data = await fetch('/genres');
+        if (!data.ok) {
+            const err = await data.json();
+            alert(err);
+            return;
+        }
+        
         const genres = await data.json();
         setGenres(genres);
     }
@@ -41,11 +47,16 @@ function HomePage() {
         });
 
         fetch(route, {method: 'POST', body: JSON.stringify(obj), headers:{'Content-Type':'application/json'}})
-        .then(({ok}) => {
-            ok && history.go(0);
+        .then(async (res) => {
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err);
+            }
+
+            history.go(0);
         })
         .catch(err => {
-            console.error(err);
+            alert(err);
         });
     }
 

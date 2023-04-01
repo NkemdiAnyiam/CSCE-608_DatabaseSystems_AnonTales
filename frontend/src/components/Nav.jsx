@@ -14,25 +14,43 @@ function Nav() {
         history.listen(({pathname}) => {
         setCurrentPath(pathname);
        }) 
-    }, [])
+    }, []);
+
+    const onAddUser = async () => {
+        fetch('/addUser', {method: 'POST'})
+        .then(async res => {
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err);
+            }
+
+            alert('Welcome to Anon Tales, stranger!');
+            history.go(0);
+        })
+        .catch(err => alert(err));
+    }
+
+    const onDeleteUser = async () => {
+        fetch('/deleteUser', {method: 'DELETE'})
+        .then(async res => {
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err);
+            }
+
+            alert('It was nice not knowing you—come back soon!');
+            history.go(0);
+        })
+        .catch(err => alert(err));
+    }
 
     const renderUserForm = () => {
         return (
             !mySerialNo ?
-            <button 
-                className={`button button--green`}
-                onClick={
-                    () => fetch('/addUser', {method: 'POST'})
-                        .then(({ok}) => ok && history.go(0))
-                }>
+            <button className={`button button--green`} onClick={onAddUser}>
                 Join Anon Tales
             </button> :
-            <button 
-                className={`button button--red`}
-                onClick={
-                    () => fetch('/deleteUser', {method: 'DELETE'})
-                        .then(({ok}) => ok && history.go(0))
-                }>
+            <button className={`button button--red`} onClick={onDeleteUser}>
                 Delete Anon Tales
             </button>
         );

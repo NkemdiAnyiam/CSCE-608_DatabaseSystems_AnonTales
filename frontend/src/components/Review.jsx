@@ -29,8 +29,14 @@ setIHaveReview, deleteReview, setReviewValue}) {
         }),
         headers:{'Content-Type':'application/json'}}
     );
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err);
+      return;
+    }
     
-    res.ok && setMyThumbState(bin_value);
+    setMyThumbState(bin_value);
   }
 
   const updateThumb = async (bin_value) => {
@@ -45,7 +51,13 @@ setIHaveReview, deleteReview, setReviewValue}) {
         }),
         headers:{'Content-Type':'application/json'}}
     );
-    res.ok && setMyThumbState(bin_value);
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err);
+      return;
+    }
+    
+    setMyThumbState(bin_value);
   }
 
   const deleteThumb = async () => {
@@ -57,7 +69,14 @@ setIHaveReview, deleteReview, setReviewValue}) {
       }),
       headers:{'Content-Type':'application/json'}
     });
-    res.ok && setMyThumbState(null);
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err);
+      return;
+    }
+
+    setMyThumbState(null);
   }
 
   return(
