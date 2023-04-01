@@ -199,8 +199,8 @@ function StoriesPage() {
                         )
                     )
                     .map(item => (
-                        <Link className="stories-page__story-link-wrapper" to={`/stories/${item.story_id}`}>
-                            <div className={`container-fluid ${item.user_serial_no === mySerialNo ? 'container-fluid--gold' : ''}`} key={item.story_id}>
+                        <Link className="stories-page__story-link-wrapper" to={`/stories/${item.story_id}`} key={item.story_id}>
+                            <div className={`container-fluid ${item.user_serial_no === mySerialNo ? 'container-fluid--gold' : ''}`}>
                                 <Story {...item} />
                             </div>
                         </Link>
