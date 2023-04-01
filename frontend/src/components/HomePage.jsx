@@ -108,31 +108,33 @@ function HomePage() {
 
     return (
         <div className="page page--home home-page">
-                    <h1 className="heading-primary">Anon Tales</h1>
-                    {
-                        mySerialNo &&
-                        <>
-                            <section className="section section--story-form">
-                                <div className="container-fluid">
-                                {
-                                    genres ?
-                                    renderStoryForm() :
-                                    <p>Loading story form...</p>
-                                }
-                                </div>
-                            </section>
+            <h1 className="heading-primary">Anon Tales</h1>
+            <p className="subheading">Anonymous tales from the internet</p>
+            {
+                mySerialNo ?
+                <>
+                    <section className="section section--story-form">
+                        <div className="container-fluid">
+                        {
+                            genres ?
+                            renderStoryForm() :
+                            <p>Loading story form...</p>
+                        }
+                        </div>
+                    </section>
 
-                            <section className="section section--prompt-form">
-                                <div className="container-fluid">
-                                    {
-                                        genres ?
-                                        renderPromptForm() :
-                                        <p>Loading prompt form...</p>
-                                    }
-                                </div>
-                            </section>
-                        </>
-                    }
+                    <section className="section section--prompt-form">
+                        <div className="container-fluid">
+                            {
+                                genres ?
+                                renderPromptForm() :
+                                <p>Loading prompt form...</p>
+                            }
+                        </div>
+                    </section>
+                </> :
+                <div className="cta"><span>Join Anon Tales to contribute.</span> <span>It's completely anonymous!</span></div>
+            }
         </div>
     );
 }
