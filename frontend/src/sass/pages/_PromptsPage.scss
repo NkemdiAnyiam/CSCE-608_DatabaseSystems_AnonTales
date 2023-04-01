@@ -1,6 +1,17 @@
 .prompts-page {
-  .section--genre-filters {
+  .section--filters {
     margin-bottom: 3rem;
+  
+    .container-fluid {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: 5rem;
+      row-gap: 2rem;
+
+      form {
+        width: 20rem;
+      }
+    }
   }
 
   .section--prompts {

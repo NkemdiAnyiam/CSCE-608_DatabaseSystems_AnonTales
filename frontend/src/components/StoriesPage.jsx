@@ -101,14 +101,14 @@ function StoriesPage() {
     }
 
     if (!dataLoaded) {
-    return <div>Loading stories...</div>
+        return <div>Loading stories...</div>
     }
 
     return(
         <div className="page page--stories stories-page">
             <h1 className="heading-primary">Stories</h1>
 
-            <section className="section section--genre-filters">
+            <section className="section section--filters">
                 <div className="container-fluid container-fluid--white">
                     <form onChange={handleGenreFilterChange}>
                         <fieldset className="filters-fieldset">
@@ -151,28 +151,28 @@ function StoriesPage() {
                             <details className="filters-dropdown">
                                 <summary>Sort by</summary>
                                 <div className="filters">
-                                    <label key={0}>
-                                        <input type="radio" name="ratings" value={'A'} defaultChecked />
+                                    <label>
+                                        <input type="radio" name="sortPriority" value={'A'} defaultChecked />
                                         <span>Title (A—Z)</span>
                                     </label>
-                                    <label key={1}>
-                                        <input type="radio" name="ratings" value={'Z'} />
+                                    <label>
+                                        <input type="radio" name="sortPriority" value={'Z'} />
                                         <span>Title (Z—A)</span>
                                     </label>
-                                    <label key={2}>
-                                        <input type="radio" name="ratings" value={'High'} />
+                                    <label>
+                                        <input type="radio" name="sortPriority" value={'High'} />
                                         <span>Rating (High—Low)</span>
                                     </label>
-                                    <label key={3}>
-                                        <input type="radio" name="ratings" value={'Low'} />
+                                    <label>
+                                        <input type="radio" name="sortPriority" value={'Low'} />
                                         <span>Rating (Low—High)</span>
                                     </label>
-                                    <label key={4}>
-                                        <input type="radio" name="ratings" value={'Recent'} />
+                                    <label>
+                                        <input type="radio" name="sortPriority" value={'Recent'} />
                                         <span>Most recent</span>
                                     </label>
-                                    <label key={5}>
-                                        <input type="radio" name="ratings" value={'Oldest'} />
+                                    <label>
+                                        <input type="radio" name="sortPriority" value={'Oldest'} />
                                         <span>Oldest</span>
                                     </label>
                                 </div>
