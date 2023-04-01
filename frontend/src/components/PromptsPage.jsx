@@ -6,7 +6,7 @@ import SerialNoContext from '../contexts/SerialNoContext';
 import Prompt from './Prompt';
 import LoadingIcon from './LoadingIcon';
 
-function PromptsPage() {
+function PromptsPage(showOnlyMine) {
   useEffect( () => {
       fetchItems();
   }, []);
@@ -20,7 +20,7 @@ function PromptsPage() {
 
   const fetchItems = async () => {
     const datas = await Promise.all(
-        [fetch('/prompts'),
+        [fetch(showOnlyMine ? '/myPrompts' : '/prompts'),
         fetch('/genres')]
     );
     const prompts = await datas[0].json();
@@ -40,6 +40,22 @@ function PromptsPage() {
         setPrompts(newArr);
     }
 
+    const handleGenreFilterChange = (e) => {
+        const target_genre_name = e.target.value;
+        if (e.target.checked)
+            { setGenreFilters([...genreFilters, target_genre_name]) }
+        else
+        {
+            const io = genreFilters.indexOf(target_genre_name);
+            const newArr = [...genreFilters.slice(0, io), ...genreFilters.slice(io+1)];
+            setGenreFilters(newArr);
+        }
+    }
+  
+    const handleSortByChange = (e) => {
+        setSortingMode(e.target.value);
+    }
+
   function getSortingFunc(sortMode) {
         switch(sortMode) {
             case 'Recent':
@@ -57,22 +73,6 @@ function PromptsPage() {
             default:
                 throw new Error(`ERROR: Invalid sort mode ${sortMode}`);
         }
-    }
-
-  const handleGenreFilterChange = (e) => {
-    const target_genre_name = e.target.value;
-    if (e.target.checked)
-        { setGenreFilters([...genreFilters, target_genre_name]) }
-    else
-        {
-            const io = genreFilters.indexOf(target_genre_name);
-            const newArr = [...genreFilters.slice(0, io), ...genreFilters.slice(io+1)];
-            setGenreFilters(newArr);
-        }
-  }
-
-    const handleSortByChange = (e) => {
-        setSortingMode(e.target.value);
     }
 
     if (!dataLoaded) {

@@ -138,7 +138,7 @@ function StoryPage(props) {
   return (
     <div className="page page--story story-page">
       <section className="section section--story">
-        <div className="container-fluid">
+        <div className={`container-fluid ${story.user_serial_no === mySerialNo ? 'container-fluid--gold' : ''}`}>
             <div className="story-container">
                 <Story {...story} onDelete={onDeleteStory} />
             </div>
@@ -166,7 +166,7 @@ function StoryPage(props) {
           <div className="container-fluid">
             {
               uploadingReview ?
-              <LoadingIcon message={'bb'} dark /> :
+              <LoadingIcon message={'Uploading review'} dark /> :
               <form className="write-review-form" onSubmit={handleWriteReview}>
                 <div className="form-container">
                     <h2>Write a review</h2>

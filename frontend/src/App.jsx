@@ -4,10 +4,8 @@ import { SerialNoProvider } from './contexts/SerialNoContext';
 
 import Nav from './components/Nav';
 import HomePage from './components/HomePage';
-import MyStoriesPage from './components/MyStoriesPage';
 import StoriesPage from './components/StoriesPage';
 import StoryPage from './components/StoryPage';
-import MyPrompsPage from './components/MyPrompsPage';
 import PromptsPage from './components/PromptsPage';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 
@@ -40,10 +38,10 @@ function App() {
             <Nav />
             <Switch>
               <Route path="/" exact component={HomePage} />
-              <Route path="/my-stories" exact component={MyStoriesPage} />
+              <Route path="/my-stories" exact render={() => <StoriesPage showOnlyMine />} />
               <Route path={`/stories/:story_id`} render={({match: {params}}) => <StoryPage story_id={params.story_id}  />} />
               <Route path="/stories" exact component={StoriesPage} />
-              <Route path="/MY-prompts" exact component={MyPrompsPage} />
+              <Route path="/my-prompts" exact render={() => <PromptsPage showOnlyMine />} />
               <Route path="/prompts" exact component={PromptsPage} />
             </Switch>
         </div>

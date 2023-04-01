@@ -7,7 +7,7 @@ import Story from '../components/Story';
 import StarRatings from './StarRatings';
 import LoadingIcon from './LoadingIcon';
 
-function StoriesPage() {
+function StoriesPage({showOnlyMine}) {
     const [stories, setStories] = useState([]);
     const [genres, setGenres] = useState([]);
     const [genreFilters, setGenreFilters] = useState([]);
@@ -20,6 +20,18 @@ function StoriesPage() {
         fetchItems();
     }, []);
 
+    const fetchItems = async () => {
+    const datas = await Promise.all(
+        [fetch(showOnlyMine ? '/myStories' : '/stories'),
+        fetch('/genres')]
+    );
+    const stories = await datas[0].json();
+    const genres = await datas[1].json();
+    setStories(stories);
+    setGenres(genres);
+    setDataLoaded(true);
+    };
+
     const onDeleteStory = async (story_id) => {
         let io = -1;
         stories.find((story, index) => {
@@ -28,6 +40,27 @@ function StoriesPage() {
         });
         const newArr = [...stories.slice(0, io), ...stories.slice(io+1)];
         setStories(newArr);
+    }
+
+    const handleGenreFilterChange = (e) => {
+    const target_genre_name = e.target.value;
+    if (e.target.checked)
+        { setGenreFilters([...genreFilters, target_genre_name]) }
+    else
+        {
+            const io = genreFilters.indexOf(target_genre_name);
+            const newArr = [...genreFilters.slice(0, io), ...genreFilters.slice(io+1)];
+            setGenreFilters(newArr);
+        }
+    }
+
+    const handleRatingFilterChange = (e) => {
+        const target_rating = Number.parseInt(e.target.value);
+        setRatingFilter([target_rating])
+    }
+
+    const handleSortByChange = (e) => {
+        setSortingMode(e.target.value);
     }
 
     function getSortingFunc(sortMode) {
@@ -63,39 +96,6 @@ function StoriesPage() {
             default:
                 throw new Error(`ERROR: Invalid sort mode ${sortMode}`);
         }
-    }
-
-    const fetchItems = async () => {
-    const datas = await Promise.all(
-        [fetch('/stories'),
-        fetch('/genres')]
-    );
-    const stories = await datas[0].json();
-    const genres = await datas[1].json();
-    setStories(stories);
-    setGenres(genres);
-    setDataLoaded(true);
-    };
-
-    const handleGenreFilterChange = (e) => {
-    const target_genre_name = e.target.value;
-    if (e.target.checked)
-        { setGenreFilters([...genreFilters, target_genre_name]) }
-    else
-        {
-            const io = genreFilters.indexOf(target_genre_name);
-            const newArr = [...genreFilters.slice(0, io), ...genreFilters.slice(io+1)];
-            setGenreFilters(newArr);
-        }
-    }
-
-    const handleRatingFilterChange = (e) => {
-        const target_rating = Number.parseInt(e.target.value);
-        setRatingFilter([target_rating])
-    }
-
-    const handleSortByChange = (e) => {
-        setSortingMode(e.target.value);
     }
     
     const renderRatingFilter = (rating, showAndUp) => {
