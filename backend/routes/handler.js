@@ -58,7 +58,7 @@ router.post('/addUser', async (req, res) => {
                     else { reject(genericErrMes); }
                     return;
                 }
-                console.log('New user addeed');
+                // console.log('New user addeed');
                 resolve(result);
             });
         });
@@ -83,7 +83,7 @@ router.delete('/deleteUser', async (req, res) => {
                 conn.release();
                 if (err) {console.error(err); reject(genericErrMes); return;}
                 if (result.affectedRows === 0) { reject('There is no data associated with you. Try refreshing the page.'); return; }
-                console.log('User deleted');
+                // console.log('User deleted');
                 resolve(result);
             });
         });
@@ -284,7 +284,7 @@ router.post('/addStory', async (req, res) => {
                             reject(genericErrMes);
                             return;
                         }
-                        console.log('Story added');
+                        // console.log('Story added');
                         resolve();
                     });
                 });
@@ -326,7 +326,7 @@ router.delete('/deleteStory', async (req, res) => {
                     reject(`The story being deleted does not exist. Try refreshing the page.`);
                     return;
                 }
-                console.log('Story deleted');
+                // console.log('Story deleted');
                 resolve(result);
             });
         });
@@ -470,13 +470,13 @@ router.post('/addReview', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) { console.error(err); reject(genericErrMes); return; }
-                    console.log('New review added');
+                    // console.log('New review added');
                     resolve(review);
                 });
             });
         }
         catch(err) {
-            console.log(err);
+            console.error(err);
             reject(genericErrMes);
         }
     })
@@ -505,7 +505,7 @@ router.delete('/deleteReview', async (req, res) => {
                 conn.release();
                 if (err) { console.error(err); reject(genericErrMes); return; }
                 if (result.affectedRows === 0) { reject('The review being deleted does not exist. Try refreshing the page.'); }
-                console.log('Review deleted');
+                // console.log('Review deleted');
                 resolve(result);
             });
         });
@@ -628,7 +628,7 @@ router.post('/addPrompt', async (req, res) => {
                             reject(genericErrMes);
                             return;
                         }
-                        console.log('Prompt added');
+                        // console.log('Prompt added');
                         resolve();
                     });
                 });
@@ -663,7 +663,7 @@ router.delete('/deletePrompt', async (req, res) => {
                 conn.release();
                 if (err) { console.error(err); reject(genericErrMes); return; }
                 if (result.affectedRows === 0) { reject('The prompt being deleted does not exist. Try refreshing the page.'); }
-                console.log('Prompt deleted');
+                // console.log('Prompt deleted');
                 resolve(result);
             });
         });
@@ -694,7 +694,7 @@ router.post('/addRating', async (req, res) => {
                     conn.query(qry, (err, result) => {
                         conn.release();
                         if (err) { console.error(err); reject(genericErrMes); return; }
-                        console.log(`Rating ${rating} added`);
+                        // console.log(`Rating ${rating} added`);
                         resolve(result);
                     });
                 });
@@ -738,7 +738,7 @@ router.put('/updateRating', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) { console.error(err); reject(genericErrMes); return; }
-                    console.log('Rating updated');
+                    // console.log('Rating updated');
                     resolve(result);
                 });
             });
@@ -776,7 +776,7 @@ router.delete('/deleteRating', async (req, res) => {
             conn.query(qry, (err, result) => {
                 conn.release();
                 if (err) { console.error(err); reject(genericErrMes); return; }
-                console.log('Rating deleted');
+                // console.log('Rating deleted');
                 resolve(result);
             });
         });
@@ -813,7 +813,7 @@ router.post('/addThumb', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) { console.error(err); reject(genericErrMes); return; }
-                    console.log(`Thumb ${bin_value === 1 ? 'up' : 'down'} added`);
+                    // console.log(`Thumb ${bin_value === 1 ? 'up' : 'down'} added`);
                     resolve(result);
                 });
             });
@@ -853,7 +853,7 @@ router.put('/updateThumb', async (req, res) => {
                 conn.query(qry, (err, result) => {
                     conn.release();
                     if (err) { console.error(err); reject(genericErrMes); return; }
-                    console.log('Thumb updated');
+                    // console.log('Thumb updated');
                     resolve(result);
                 });
             });
@@ -887,7 +887,7 @@ router.delete('/deleteThumb', async (req, res) => {
             conn.query(qry, (err, result) => {
                 conn.release();
                 if (err) { console.error(err); reject(genericErrMes); return; }
-                console.log('Thumb deleted');
+                // console.log('Thumb deleted');
                 resolve(result);
             });
         });
