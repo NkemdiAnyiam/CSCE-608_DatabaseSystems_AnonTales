@@ -6,7 +6,7 @@ import SerialNoContext from '../contexts/SerialNoContext';
 import Prompt from './Prompt';
 import LoadingIcon from './LoadingIcon';
 
-function PromptsPage(showOnlyMine) {
+function PromptsPage({showOnlyMine}) {
   useEffect( () => {
       fetchItems();
   }, []);
