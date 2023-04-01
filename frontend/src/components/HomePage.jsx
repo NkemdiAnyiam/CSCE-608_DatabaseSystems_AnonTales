@@ -11,6 +11,8 @@ function HomePage() {
     const mySerialNo = useContext(SerialNoContext);
     const [genres, setGenres] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
+    const [submittingStory, setSubmittingStory] = useState(false);
+    const [submittingPrompt, setSubmittingPrompt] = useState(false);
 
     useEffect(async () => {
         await fetchItems();
@@ -31,6 +33,8 @@ function HomePage() {
 
     const handleSubmit = (e, fieldPrefix, route) => {
         e.preventDefault();
+        const hookFunc = fieldPrefix === 'storyFields' ? setSubmittingStory : setSubmittingPrompt;
+        hookFunc(true);
         const formData = new FormData(e.target);
         const obj = {
             [fieldPrefix]: {},
@@ -52,11 +56,12 @@ function HomePage() {
                 const err = await res.json();
                 throw new Error(err);
             }
-
-            history.go(0);
         })
         .catch(err => {
             alert(err);
+        })
+        .finally(() => {
+            hookFunc(false);
         });
     }
 
@@ -65,28 +70,34 @@ function HomePage() {
             <form onSubmit={(e) => {handleSubmit(e, 'storyFields', '/addStory')}} className="form form--add-story">
                 <div className="form-container form-container--story">
                     <h2>Tell a story</h2>
-                    <label>
-                        <span>Title</span>
-                        <input name="storyFields.title" type="text" maxLength={100} required />
-                    </label>
-                    <label>
-                        <span>Story</span>
-                        <textarea name="storyFields.text_content" maxLength={5000} required />
-                    </label>
-                    <fieldset className="genres-fieldset">
-                        <details>
-                        <summary>Genres</summary>
-                        <div className="genres">
-                            {genres.map(({genre_name}) => (
-                                <label key={genre_name} className='checkbox'>
-                                    <input type="checkbox" name="genre_names" value={genre_name} />
-                                    <span>{genre_name}</span>
-                                </label>
-                            ))}
-                        </div>
-                        </details>
-                    </fieldset>
-                    <button className={`button button--green`} type="submit">Publish    </button>
+                    {
+                        submittingStory ?
+                        <LoadingIcon message={'Publishing story'} dark /> :
+                        <>
+                            <label>
+                                <span>Title</span>
+                                <input name="storyFields.title" type="text" maxLength={100} required />
+                            </label>
+                            <label>
+                                <span>Story</span>
+                                <textarea name="storyFields.text_content" maxLength={5000} required />
+                            </label>
+                            <fieldset className="genres-fieldset">
+                                <details>
+                                <summary>Genres</summary>
+                                <div className="genres">
+                                    {genres.map(({genre_name}) => (
+                                        <label key={genre_name} className='checkbox'>
+                                            <input type="checkbox" name="genre_names" value={genre_name} />
+                                            <span>{genre_name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                </details>
+                            </fieldset>
+                            <button className={`button button--green`} type="submit">Publish</button>
+                        </>
+                    }
                 </div>
             </form>
         );
@@ -97,24 +108,30 @@ function HomePage() {
             <form onSubmit={(e) => handleSubmit(e, 'promptFields', '/addPrompt')} className="form form--add-prompt">
                 <div className='form-container form-container--prompt'>
                 <h2>Submit a prompt</h2>
-                    <label>
-                        <span>Entry</span>
-                        <textarea name="promptFields.text_content" maxLength={5000} required />
-                    </label>
-                    <fieldset className="genres-fieldset">
-                        <details>
-                            <summary>Genres</summary>
-                            <div className="genres">
-                                {genres.map(({genre_name}) => (
-                                    <label key={genre_name}>
-                                        <input type="checkbox" name="genre_names" value={genre_name} maxLength={300} />
-                                        {genre_name}
-                                    </label>
-                                ))}
-                            </div>
-                        </details>
-                    </fieldset>
-                    <button className="button button--green" type="submit">Submit</button>
+                {
+                    submittingPrompt ?
+                    <LoadingIcon message={'Submitting prompt'} dark /> :
+                    <>
+                        <label>
+                            <span>Entry</span>
+                            <textarea name="promptFields.text_content" maxLength={5000} required />
+                        </label>
+                        <fieldset className="genres-fieldset">
+                            <details>
+                                <summary>Genres</summary>
+                                <div className="genres">
+                                    {genres.map(({genre_name}) => (
+                                        <label key={genre_name}>
+                                            <input type="checkbox" name="genre_names" value={genre_name} maxLength={300} />
+                                            {genre_name}
+                                        </label>
+                                    ))}
+                                </div>
+                            </details>
+                        </fieldset>
+                        <button className="button button--green" type="submit">Submit</button>
+                    </>
+                }
                 </div>
             </form>
         );
