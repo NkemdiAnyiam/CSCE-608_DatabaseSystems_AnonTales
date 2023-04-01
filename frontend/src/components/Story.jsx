@@ -5,12 +5,12 @@ import SerialNoContext from '../contexts/SerialNoContext';
 
 import StarRatings from './StarRatings';
 
-function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_names, text_content, publish_date}) {
+function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_names, text_content, publish_date, onDelete}) {
     const [deletingStory, setDeletingStory] = useState(false);
     const [storyDeleted, setStoryDeleted] = useState(false);
     const mySerialNo = useContext(SerialNoContext);
 
-    const onDelete = async (e) => {
+    const handleDeletion = async (e) => {
       e.preventDefault();
       setDeletingStory(true);
 
@@ -23,6 +23,8 @@ function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_
         if (ok) {
           setStoryDeleted(true);
           setDeletingStory(false);
+          alert('Story successfully deleted');
+          onDelete(story_id);
         }
       })
       .catch(err => {
@@ -80,7 +82,7 @@ function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_
         
         {
           mySerialNo === user_serial_no &&
-          <button className="story__delete-button button button--red" onClick={onDelete}>Delete</button>
+          <button className="story__delete-button button button--red" onClick={handleDeletion}>Delete</button>
         }
       </div> 
     );

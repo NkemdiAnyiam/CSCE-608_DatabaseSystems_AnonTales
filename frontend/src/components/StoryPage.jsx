@@ -74,6 +74,10 @@ function StoryPage(props) {
       });
   }
 
+  const onDeleteStory = async () => {
+    history.push('/my-stories');
+  }
+
   const onDeleteReview = async () => {
     fetch('/deleteReview', {
       method: 'DELETE',
@@ -136,7 +140,7 @@ function StoryPage(props) {
       <section className="section section--story">
         <div className="container-fluid">
             <div className="story-container">
-                <Story {...story} />
+                <Story {...story} onDelete={onDeleteStory} />
             </div>
             {
               !storyIsMine &&

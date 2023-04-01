@@ -30,6 +30,16 @@ function PromptsPage() {
     setDataLoaded(true);
   };
 
+    const onDeletePrompt = async (prompt_id) => {
+        let io = -1;
+        prompts.find((prompt, index) => {
+            if (prompt.prompt_id === prompt_id) { io = index; }
+            return prompt.prompt_id === prompt_id;
+        });
+        const newArr = [...prompts.slice(0, io), ...prompts.slice(io+1)];
+        setPrompts(newArr);
+    }
+
   function getSortingFunc(sortMode) {
         switch(sortMode) {
             case 'Recent':
@@ -127,7 +137,7 @@ function PromptsPage() {
                     .sort(getSortingFunc(sortingMode))
                     .map(item => (
                         <div className={`container-fluid ${item.user_serial_no === mySerialNo ? 'container-fluid--gold' : ''}`} key={item.prompt_id}>
-                            <Prompt {...item} />
+                            <Prompt {...item} onDelete={onDeletePrompt} />
                         </div>
                     ))
                 }

@@ -4,12 +4,12 @@ import SerialNoContext from '../contexts/SerialNoContext';
 
 import LoadingIcon from './LoadingIcon';
 
-function Prompt({prompt_id, genre_names, text_content, publish_date, user_serial_no}) {
+function Prompt({prompt_id, genre_names, text_content, publish_date, user_serial_no, onDelete}) {
     const [deletingPrompt, setDeletingPrompt] = useState(false);
     const [promptDeleted, setPromptDeleted] = useState(false);
-    const mySerialNo = useContext(SerialNoContext)
+    const mySerialNo = useContext(SerialNoContext);
 
-    const onDelete = async (e) => {
+    const handleDeletion = async (e) => {
       e.preventDefault();
       setDeletingPrompt(true);
 
@@ -22,6 +22,7 @@ function Prompt({prompt_id, genre_names, text_content, publish_date, user_serial
         if (ok) {
           setPromptDeleted(true);
           setDeletingPrompt(false);
+          onDelete(prompt_id);
         }
       })
       .catch(err => {
@@ -61,7 +62,7 @@ function Prompt({prompt_id, genre_names, text_content, publish_date, user_serial
 
         {
           mySerialNo === user_serial_no &&
-          <button className="prompt__delete-button button button--red" onClick={onDelete}>Delete</button>
+          <button className="prompt__delete-button button button--red" onClick={handleDeletion}>Delete</button>
         }
       </div> 
     );

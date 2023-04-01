@@ -20,6 +20,16 @@ function StoriesPage() {
         fetchItems();
     }, []);
 
+    const onDeleteStory = async (story_id) => {
+        let io = -1;
+        stories.find((story, index) => {
+            if (story.story_id === story_id) { io = index; }
+            return story.story_id === story_id;
+        });
+        const newArr = [...stories.slice(0, io), ...stories.slice(io+1)];
+        setStories(newArr);
+    }
+
     function getSortingFunc(sortMode) {
         switch(sortMode) {
             case 'A':
@@ -206,7 +216,7 @@ function StoriesPage() {
                     .map(item => (
                         <Link className="stories-page__story-link-wrapper" to={`/stories/${item.story_id}`} key={item.story_id}>
                             <div className={`container-fluid ${item.user_serial_no === mySerialNo ? 'container-fluid--gold' : ''}`}>
-                                <Story {...item} />
+                                <Story {...item} onDelete={onDeleteStory} />
                             </div>
                         </Link>
                     ))
