@@ -12,6 +12,7 @@ import PromptsPage from './components/PromptsPage';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 
 import './sass/main.scss';
+import LoadingIcon from './components/LoadingIcon';
 
 function App() {
   useEffect(async () => {
@@ -25,7 +26,11 @@ function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   if (!dataLoaded) {
-    return <div>Loading...</div>
+    return (
+      <div className="page">
+        <div className="app"><LoadingIcon message={'Processing user'} /></div>
+      </div>
+    )
   }
 
   return (

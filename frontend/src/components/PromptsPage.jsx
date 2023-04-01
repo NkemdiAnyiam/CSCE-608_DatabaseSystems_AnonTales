@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import SerialNoContext from '../contexts/SerialNoContext';
 
 import Prompt from './Prompt';
+import LoadingIcon from './LoadingIcon';
 
 function PromptsPage() {
   useEffect( () => {
@@ -66,7 +67,11 @@ function PromptsPage() {
     }
 
     if (!dataLoaded) {
-        return <div>Loading prompts...</div>
+        return (
+            <div className="page page--prompts prompts-page">
+                <LoadingIcon message={'Loading prompts'} />
+            </div>
+        )
     }
 
     return(

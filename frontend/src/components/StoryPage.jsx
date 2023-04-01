@@ -6,6 +6,7 @@ import SerialNoContext from '../contexts/SerialNoContext';
 import Review from './Review';
 import StarRatings from './StarRatings';
 import Story from './Story';
+import LoadingIcon from './LoadingIcon';
 
 function StoryPage(props) {
   const [story, setStory] = useState(null);
@@ -14,6 +15,7 @@ function StoryPage(props) {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [loadingRating, setLoadingRating] = useState(false);
   const [reviewValue, setReviewValue] = useState('');
+  const [uploadingReview, setUploadingReview] = useState(false);
   const [iHaveReview, setIHaveReview] = useState(false);
   const [storyIsMine, setStoryIsMine] = useState(true);
   const history = useHistory();
@@ -43,6 +45,7 @@ function StoryPage(props) {
   };
 
   const handleWriteReview = (e) => {
+    setUploadingReview(true);
     e.preventDefault();
     const formData = new FormData(e.target);
     const obj = {
@@ -64,6 +67,10 @@ function StoryPage(props) {
       })
       .catch(err => {
           console.error(err);
+          alert(err);
+      })
+      .finally(() => {
+        setUploadingReview(false);
       });
   }
 
@@ -118,7 +125,9 @@ function StoryPage(props) {
 
   if (!dataLoaded) {
     return (
-      <div>Loading story...</div>
+      <div className="page page--story story-page">
+        <LoadingIcon message={'Loading story'} />
+      </div>
     )
   }
 
@@ -151,10 +160,20 @@ function StoryPage(props) {
         !storyIsMine &&
         <section className="section section--write-review">
           <div className="container-fluid">
+            {
+              uploadingReview ?
+              <LoadingIcon message={'bb'} dark /> :
               <form className="write-review-form" onSubmit={handleWriteReview}>
                 <div className="form-container">
                     <h2>Write a review</h2>
-                    <textarea name="reviewFields.text_content" disabled={iHaveReview} value={reviewValue} onChange={e => setReviewValue(e.target.value)} />
+                    <textarea
+                      name="reviewFields.text_content"
+                      disabled={iHaveReview}
+                      readOnly={iHaveReview}
+                      value={reviewValue}
+                      onChange={e => setReviewValue(e.target.value)}
+                      required
+                    />
                     {
                       iHaveReview ?
                       <button className="button button--red" type="button" onClick={() => onDeleteReview()}>Delete</button> :
@@ -162,6 +181,8 @@ function StoryPage(props) {
                     }
                 </div>
               </form>
+            }
+            
           </div>
         </section>
       }

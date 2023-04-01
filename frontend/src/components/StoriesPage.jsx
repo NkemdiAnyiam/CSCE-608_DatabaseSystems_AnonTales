@@ -5,12 +5,9 @@ import SerialNoContext from '../contexts/SerialNoContext';
 
 import Story from '../components/Story';
 import StarRatings from './StarRatings';
+import LoadingIcon from './LoadingIcon';
 
 function StoriesPage() {
-    useEffect( () => {
-        fetchItems();
-    }, []);
-
     const [stories, setStories] = useState([]);
     const [genres, setGenres] = useState([]);
     const [genreFilters, setGenreFilters] = useState([]);
@@ -18,6 +15,10 @@ function StoriesPage() {
     const [sortingMode, setSortingMode] = useState('A');
     const [dataLoaded, setDataLoaded] = useState(false);
     const mySerialNo = useContext(SerialNoContext);
+
+    useEffect( () => {
+        fetchItems();
+    }, []);
 
     function getSortingFunc(sortMode) {
         switch(sortMode) {
@@ -101,7 +102,11 @@ function StoriesPage() {
     }
 
     if (!dataLoaded) {
-        return <div>Loading stories...</div>
+        return (
+            <div className="page page--stories stories-page">
+                <LoadingIcon message={'Loading stories'} />
+            </div>
+        )
     }
 
     return(

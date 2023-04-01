@@ -1,0 +1,28 @@
+@keyframes spinning {
+  from {
+    transform: rotateZ(0deg);
+  }
+
+  
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+.loading-icon {
+  color: white;
+
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  &.loading-icon--dark {
+    color: black;
+  }
+
+  .logo {
+    fill: currentColor;
+    height: 2rem;
+    animation: spinning 2s linear infinite;
+  }
+}

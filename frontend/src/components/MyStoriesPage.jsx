@@ -5,6 +5,7 @@ import SerialNoContext from '../contexts/SerialNoContext';
 
 import Story from '../components/Story';
 import StarRatings from './StarRatings';
+import LoadingIcon from './LoadingIcon';
 
 function MyStoriesPage() {
     useEffect( () => {
@@ -101,12 +102,16 @@ function MyStoriesPage() {
     }
 
     if (!dataLoaded) {
-        return <div>Loading stories...</div>
+        return (
+            <div className="page page--stories stories-page">
+                <LoadingIcon message={'Loading your stories'} />
+            </div>
+        )
     }
 
     return(
         <div className="page page--stories stories-page">
-            <h1 className="heading-primary">Stories</h1>
+            <h1 className="heading-primary">My Stories</h1>
 
             <section className="section section--filters">
                 <div className="container-fluid">

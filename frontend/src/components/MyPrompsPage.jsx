@@ -4,8 +4,9 @@ import { Link } from 'react-router-dom';
 import SerialNoContext from '../contexts/SerialNoContext';
 
 import Prompt from './Prompt';
+import LoadingIcon from './LoadingIcon';
 
-function PromptsPage() {
+function MyPromptsPage() {
   useEffect( () => {
       fetchItems();
   }, []);
@@ -19,7 +20,7 @@ function PromptsPage() {
 
   const fetchItems = async () => {
     const datas = await Promise.all(
-        [fetch('/myPrompts'),
+        [fetch('/prompts'),
         fetch('/genres')]
     );
     const prompts = await datas[0].json();
@@ -66,7 +67,11 @@ function PromptsPage() {
     }
 
     if (!dataLoaded) {
-        return <div>Loading prompts...</div>
+        return (
+            <div className="page page--stories stories-page">
+                <LoadingIcon message={'Loading your prompts'} />
+            </div>
+        )
     }
 
     return(
@@ -132,4 +137,4 @@ function PromptsPage() {
     );
 }
 
-export default PromptsPage;
+export default MyPromptsPage;
