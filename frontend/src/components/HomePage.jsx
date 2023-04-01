@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import SerialNoContext from '../contexts/SerialNoContext';
 
@@ -7,16 +6,17 @@ import Logo from './Logo';
 import LoadingIcon from './LoadingIcon';
 
 function HomePage() {
-    const history = useHistory();
     const mySerialNo = useContext(SerialNoContext);
     const [genres, setGenres] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
     const [submittingStory, setSubmittingStory] = useState(false);
     const [submittingPrompt, setSubmittingPrompt] = useState(false);
 
-    useEffect(async () => {
-        await fetchItems();
-        setDataLoaded(true);
+    useEffect(() => {
+        (async () => {
+            await fetchItems();
+            setDataLoaded(true);
+        })();
     }, []);
 
     const fetchItems = async () => {
@@ -135,6 +135,14 @@ function HomePage() {
                 </div>
             </form>
         );
+    }
+
+    if (!dataLoaded) {
+        return (
+            <div className="page page--home home-page">
+                <LoadingIcon message={'Loading forms'} />
+            </div>
+        )
     }
 
     return (

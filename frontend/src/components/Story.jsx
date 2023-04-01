@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import LoadingIcon from './LoadingIcon';
 
 import SerialNoContext from '../contexts/SerialNoContext';

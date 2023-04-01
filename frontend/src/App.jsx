@@ -13,11 +13,13 @@ import './sass/main.scss';
 import LoadingIcon from './components/LoadingIcon';
 
 function App() {
-  useEffect(async () => {
-    const {serial_no} = await(await fetch('/serialNo')).json();
-    const userExists = await(await(fetch('/userExists'))).json();
-    userExists && setMySerialNo(serial_no);
-    setDataLoaded(true);
+  useEffect(() => {
+    (async () => {
+      const {serial_no} = await(await fetch('/serialNo')).json();
+      const userExists = await(await(fetch('/userExists'))).json();
+      userExists && setMySerialNo(serial_no);
+      setDataLoaded(true);
+    })()
   }, []);
 
   const [mySerialNo, setMySerialNo] = useState(null);
@@ -38,10 +40,10 @@ function App() {
             <Nav />
             <Switch>
               <Route path="/" exact component={HomePage} />
-              <Route path="/my-stories" exact render={() => <StoriesPage showOnlyMine />} />
+              <Route path="/my-stories" exact render={() => <StoriesPage showOnlyMine key={'my-stories'} />} />
               <Route path={`/stories/:story_id`} render={({match: {params}}) => <StoryPage story_id={params.story_id}  />} />
               <Route path="/stories" exact component={StoriesPage} />
-              <Route path="/my-prompts" exact render={() => <PromptsPage showOnlyMine />} />
+              <Route path="/my-prompts" exact render={() => <PromptsPage showOnlyMine key={'my-prompts'} />} />
               <Route path="/prompts" exact component={PromptsPage} />
             </Switch>
         </div>
