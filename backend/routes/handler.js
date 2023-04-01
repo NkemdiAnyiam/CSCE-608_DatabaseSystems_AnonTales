@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool =  require('../config/db.js');
+const {pool} =  require('../config/db.js');
 const serialNumber = require('serial-number');
 const { v4: uuidv4 } = require('uuid');
 

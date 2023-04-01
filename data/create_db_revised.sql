@@ -97,7 +97,6 @@ CREATE TABLE Thumbed(
 
 
 -- Triggers
-DELIMITER $$
 CREATE TRIGGER NoSelfReview
 BEFORE INSERT ON Reviews
 FOR EACH ROW
@@ -109,5 +108,4 @@ BEGIN
       SET msg = 'MyTriggerError: Trying to insert a review for the reviewer''s own story';
       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
   END IF;
-END$$
-DELIMITER ;
+END;
