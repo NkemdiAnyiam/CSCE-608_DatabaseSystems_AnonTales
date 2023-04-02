@@ -46,10 +46,10 @@ function toPropertiesStr(instance) { return Object.getOwnPropertyNames(instance)
 
 function minifySqlQuery(query) {
   return query
-    .replace(/\n\s+/g, ' ')
-    .replace(/\(\s+/g, '(')
-    .replace(/\s+\)/, ')')
-    .replace(/\s*,\s*/g, ',')
+    // .replace(/\n\s+/g, ' ')
+    // .replace(/\(\s+/g, '(')
+    // .replace(/\s+\)/, ')')
+    // .replace(/\s*,\s*/g, ',')
     .trim();
 }
 
