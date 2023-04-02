@@ -121,7 +121,7 @@ function StoriesPage({showOnlyMine}) {
 
     return(
         <div className="page page--stories stories-page">
-            <h1 className="heading-primary">Stories</h1>
+            <h1 className="heading-primary">{showOnlyMine ? 'My ' : ''}Stories</h1>
 
             <section className="section section--filters">
                 <div className="container-fluid container-fluid--white">

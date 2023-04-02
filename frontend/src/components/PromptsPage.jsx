@@ -94,7 +94,7 @@ function PromptsPage({showOnlyMine}) {
 
     return(
         <div className="page page--prompts prompts-page">
-            <h1 className="heading-primary">Prompts</h1>
+            <h1 className="heading-primary">{showOnlyMine ? 'My ' : ''}Prompts</h1>
 
             <section className="section section--filters">
                 <div className="container-fluid container-fluid--white">
