@@ -5,7 +5,7 @@ import SerialNoContext from '../contexts/SerialNoContext';
 
 import StarRatings from './StarRatings';
 
-function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_names, text_content, publish_date, onDelete}) {
+function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_names, text_content, publish_date, onDelete, expanded}) {
     const [deletingStory, setDeletingStory] = useState(false);
     const [storyDeleted, setStoryDeleted] = useState(false);
     const mySerialNo = useContext(SerialNoContext);
@@ -79,7 +79,7 @@ function Story({story_id, user_serial_no, title, avg_rating, num_ratings, genre_
           </div>
           )
         }
-        <div className={`story__text-content`}>{text_content}</div>
+        <div className={`story__text-content ${expanded ? 'story__text-content--expanded' : ''}`}>{text_content}</div>
         
         {
           mySerialNo === user_serial_no &&

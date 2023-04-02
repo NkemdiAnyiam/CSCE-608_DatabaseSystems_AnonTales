@@ -30,6 +30,20 @@
 
   &__text-content {
     line-height: 1.2;
+    white-space: pre-line;
+    max-height: 20rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    &.story__text-content--expanded {
+      max-height: unset;
+      display: unset;
+      -webkit-line-clamp: unset;
+      -webkit-box-orient: unset;
+      overflow: unset;
+    }
   }
 
   &__delete-button {

@@ -241,7 +241,7 @@ router.post('/addStory', async (req, res) => {
     new Promise((resolve, reject) => {
         try {
             const {storyFields, genresArray} = req.body;
-            const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content.replace("'", "''"), currentDate());
+            const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content.replace(/'/g, "''").trim(), currentDate());
             const fallsUnder = genresArray.map(genreFields => {
                 return FallsUnder.createFrom(story, Genres.create(genreFields.genre_name))
             });
@@ -461,7 +461,7 @@ router.post('/addReview', async (req, res) => {
     new Promise((resolve, reject) => {   
         try {
             const {reviewFields} = req.body;
-            const review = Reviews.create(reviewFields.story_id, user_serial_no, reviewFields.text_content.replace("'", "''"), currentDate());
+            const review = Reviews.create(reviewFields.story_id, user_serial_no, reviewFields.text_content.replace(/'/g, "''").trim(), currentDate());
 
             pool.getConnection( (err, conn) => {
                 if (err) throw err;
@@ -586,7 +586,7 @@ router.post('/addPrompt', async (req, res) => {
     new Promise((resolve, reject) => {
         try {
             const {promptFields, genresArray} = req.body;
-            const prompt = Prompts.create(uuidv4(), user_serial_no, promptFields.text_content, currentDate());
+            const prompt = Prompts.create(uuidv4(), user_serial_no, promptFields.text_content.replace(/'/g, "''").replace(/\n/g, ' ').trim(), currentDate());
             const promptsGenre = genresArray.map(genreFields => {
                 return PromptsGenre.createFrom(prompt, Genres.create(genreFields.genre_name));
             });

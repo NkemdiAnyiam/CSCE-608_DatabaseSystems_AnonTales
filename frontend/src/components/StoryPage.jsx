@@ -161,7 +161,7 @@ function StoryPage(props) {
       <section className="section section--story">
         <div className={`container-fluid ${story.user_serial_no === mySerialNo ? 'container-fluid--gold' : ''}`}>
             <div className="story-container">
-                <Story {...story} onDelete={onDeleteStory} />
+                <Story {...story} onDelete={onDeleteStory} expanded />
             </div>
             {
               !storyIsMine &&
