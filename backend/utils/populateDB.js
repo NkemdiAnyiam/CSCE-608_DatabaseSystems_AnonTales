@@ -84,7 +84,10 @@ async function populateDB() {
             const numStories = randomInt(0, 4);
             for (let i_stories = 0; i_stories < numStories; ++i_stories) {
                 // GENERATE STORY
-                const story = Stories.create(uuidv4(), author.serial_no, randomWords(randomInt(1, 5)).join(' '), randomEntry(10), randomDate(new Date(2012, 0, 1)));
+                const story = Stories.create(uuidv4(), author.serial_no,
+                randomWords({
+                    exactly: randomInt(1, 5), formatter: (word => word.slice(0,1).toUpperCase().concat(word.slice(1)))
+                }).join(' '), randomEntry(10), randomDate(new Date(2012, 0, 1)));
                 stories.push(story);
     
                 // GENERATE FALLS-UNDER FOR STORY

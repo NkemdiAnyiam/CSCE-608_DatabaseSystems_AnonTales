@@ -15,8 +15,16 @@ function randomInt(minimum, maximum) {
 
 function randomEntry(maxSentences) {
   return [... new Array(randomInt(1, maxSentences))]
-      .map(_ => randomWords({min: 8, max: 17, join: ' '}))
-      .join('. ');
+    .map(_ => {
+      const sentence = randomWords({
+        min: 8,
+        max: 17,
+        join: ' '
+      });
+      
+      return sentence.slice(0,1).toUpperCase().concat(sentence.slice(1));
+    })
+    .join('. ');
 }
 
 function getRandomArrayValue(array) {
@@ -42,10 +50,10 @@ function toPropertiesStr(instance) { return Object.getOwnPropertyNames(instance)
 
 function minifySqlQuery(query) {
   return query
-    // .replace(/\n\s+/g, ' ')
-    // .replace(/\(\s+/g, '(')
-    // .replace(/\s+\)/, ')')
-    // .replace(/\s*,\s*/g, ',')
+    .replace(/\n\s*/g, ' ')
+    .replace(/\(\s+/g, '(')
+    .replace(/\s+\)/, ')')
+    .replace(/\s*,\s*/g, ',')
     .trim();
 }
 
