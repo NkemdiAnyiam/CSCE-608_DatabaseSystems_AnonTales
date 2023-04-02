@@ -24,7 +24,7 @@ function randomEntry(maxSentences) {
       
       return sentence.slice(0,1).toUpperCase().concat(sentence.slice(1));
     })
-    .join('. ');
+    .join('. ')+'.';
 }
 
 function getRandomArrayValue(array) {
