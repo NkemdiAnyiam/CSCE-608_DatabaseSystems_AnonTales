@@ -29,13 +29,9 @@ function getRandomTruth(percentRate) {
   return Math.random() <= percentRate;
 }
 
-function toTupleStr(item) {
+function toPlaceholderTuple(item) {
   const str = Object.values(item)
-      .map(value => {
-          return typeof value === 'string' ?
-              `'${value}'` :
-              `${value}`;
-      })
+      .map(value => '?')
       .join(', ');
   return `(${str})`;
 }
@@ -62,7 +58,10 @@ function sqlInsertStatement(schemaClass, insertee) {
   const array = toArray(insertee);
   if (typeof schemaClass !== 'string' && !(array[0] instanceof schemaClass)) { throw new Error('ERROR: insertee type does not match schema class'); }
   const columnNames = toPropertiesStr(array[0]);
-  return minifySqlQuery(`INSERT INTO ${relationName}(${columnNames}) VALUES ${array.map(item => toTupleStr(item)).join(', ')};`);
+  return [
+    minifySqlQuery(`INSERT INTO ${relationName}(${columnNames}) VALUES ${array.map(item => toPlaceholderTuple(item)).join(', ')};`),
+    array.map(item => Object.values(item)).flat()
+  ];
 }
 
 function sqlUpdateStatement(schemaClass, assignment, condition) {
@@ -85,7 +84,7 @@ function sqlInsert(pool, schemaClass, insertee, chunkSize = 1) {
           await new Promise(resolveInner => {
               pool.getConnection((err, conn) => {
                   if (err) { throw err; }
-                  conn.query(sqlInsertStatement(schemaClass, subArray), (err, result) => {
+                  conn.query(...sqlInsertStatement(schemaClass, subArray), (err, result) => {
                       conn.release();
                       if (err) { throw err; }
                       // console.log(result);
@@ -106,7 +105,7 @@ module.exports = {
   randomEntry,
   getRandomArrayValue,
   getRandomTruth,
-  toTupleStr,
+  toPlaceholderTuple,
   toPropertiesStr,
   minifySqlQuery,
   nullDefault,
