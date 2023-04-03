@@ -109,3 +109,17 @@ BEGIN
       SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
   END IF;
 END;
+
+
+CREATE TRIGGER NoSelfRate
+BEFORE INSERT ON Rated
+FOR EACH ROW
+BEGIN
+  DECLARE msg VARCHAR(128);
+	IF
+		new.user_serial_no = (SELECT Stories.user_serial_no FROM Stories WHERE Stories.story_id = new.story_id)
+	THEN
+      SET msg = 'MyTriggerError: Trying to rate the author''s own story';
+      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = msg;
+  END IF;
+END;
