@@ -54,9 +54,8 @@ router.post('/addUser', async (req, res) => {
             conn.query(...qry, (err, result) => {
                 conn.release();
                 if (err) {
-                    console.error(err);
                     if (err.code === 'ER_DUP_ENTRY') {reject('You are already part of Anon Tales. Try refreshing the page.'); }
-                    else { reject(genericErrMes); }
+                    else { console.error(err); reject(genericErrMes); }
                     return;
                 }
                 // console.log('New user addeed');
@@ -97,10 +96,8 @@ router.delete('/deleteUser', async (req, res) => {
     });
 });
 
-router.get('/userExists', async (req, res) => {
-    const genericErrMes = 'An error occured while verifying your existence.';
-    const user_serial_no = await getSerialNumber();
-    new Promise((resolve, reject) => {
+const getUserExists = async (user_serial_no, genericErrMes) => {
+    return new Promise((resolve, reject) => {
         pool.getConnection( (err, conn) => {
             if (err) { console.error(err); reject(genericErrMes); return; }
 
@@ -112,6 +109,12 @@ router.get('/userExists', async (req, res) => {
             });
         });
     })
+}
+
+router.get('/userExists', async (req, res) => {
+    const user_serial_no = await getSerialNumber();
+    const genericErrMes = 'An error occured while verifying your existence.';
+    getUserExists(user_serial_no, genericErrMes)
     .then((result) => {
         res.send(JSON.stringify(result));
     })
@@ -235,7 +238,9 @@ router.get('/story', async (req, res) => {
 router.post('/addStory', async (req, res) => {
     const genericErrMes = 'An error occured while attempting to publish your story';
     const user_serial_no = await getSerialNumber();
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
+        const userExists = await getUserExists(user_serial_no, genericErrMes);
+        if (!userExists) { reject('You must join Anon Tales in order to publish stories.'); return; }
         try {
             const {storyFields, genresArray} = req.body;
             const story = Stories.create(uuidv4(), user_serial_no, storyFields.title, storyFields.text_content, currentDate());
@@ -452,7 +457,9 @@ const getReview = async (story_id, user_serial_no) => {
 router.post('/addReview', async (req, res) => {
     const genericErrMes = 'An error occured while trying to publish your review.';
     const user_serial_no = await getSerialNumber();
-    new Promise((resolve, reject) => {   
+    new Promise(async (resolve, reject) => {
+        const userExists = await getUserExists(user_serial_no, genericErrMes);
+        if (!userExists) { reject('You must join Anon Tales in order to review stories.'); return; }
         try {
             const {reviewFields} = req.body;
             const review = Reviews.create(reviewFields.story_id, user_serial_no, reviewFields.text_content, currentDate());
@@ -463,9 +470,8 @@ router.post('/addReview', async (req, res) => {
                 conn.query(...sqlInsertStatement(Reviews, review), (err, result) => {
                     conn.release();
                     if (err) {
-                        console.error(err);
                         if (err.code === 'ER_DUP_ENTRY') {reject('You have already written a review for this story. Try refreshing the page.'); }
-                        else { reject(genericErrMes); }
+                        else { console.error(err); reject(genericErrMes); }
                         return;
                     }
                     // console.log('New review added');
@@ -576,7 +582,9 @@ router.get('/myPrompts', async (req, res) => {
 router.post('/addPrompt', async (req, res) => {
     const genericErrMes = 'An error occured while attempting to submit your prompt.';
     const user_serial_no = await getSerialNumber();
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
+        const userExists = await getUserExists(user_serial_no, genericErrMes);
+        if (!userExists) { reject('You must join Anon Tales in order to submit prompts.'); return; }
         try {
             const {promptFields, genresArray} = req.body;
             const prompt = Prompts.create(uuidv4(), user_serial_no, promptFields.text_content.replace(/\n/g, ' '), currentDate());
@@ -677,7 +685,9 @@ router.delete('/deletePrompt', async (req, res) => {
 router.post('/addRating', async (req, res) => {
     const genericErrMes = 'An error occured while attempting to rate this story.';
     const user_serial_no = await getSerialNumber();
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
+        const userExists = await getUserExists(user_serial_no, genericErrMes);
+        if (!userExists) { reject('You must join Anon Tales in order to rate stories.'); return; }
         try {
             const {
                 story_id,
@@ -794,7 +804,9 @@ router.delete('/deleteRating', async (req, res) => {
 router.post('/addThumb', async (req, res) => {
     const genericErrMes = 'An error occured while attemping to thumb this review.';
     const user_serial_no = await getSerialNumber();
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
+    const userExists = await getUserExists(user_serial_no, genericErrMes);
+    if (!userExists) { reject('You must join Anon Tales in order to thumb reviews.'); return; }
     try {
         const {
             reviewer_serial_no, 
