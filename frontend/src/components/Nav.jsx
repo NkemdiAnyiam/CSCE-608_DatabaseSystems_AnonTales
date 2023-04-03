@@ -44,14 +44,14 @@ function Nav() {
         .catch(err => alert(err));
     }
 
-    const renderUserForm = () => {
+    const renderUserButton = () => {
         return (
             !mySerialNo ?
             <button className={`button button--green`} onClick={onAddUser}>
                 Join Anon Tales
             </button> :
             <button className={`button button--red`} onClick={onDeleteUser}>
-                Delete Anon Tales
+                Leave Anon Tales
             </button>
         );
     }
@@ -69,7 +69,7 @@ function Nav() {
                     <Link to='/my-prompts' className={`nav__link nav-item nav-link ${currentPath?.startsWith?.('/my-prompts') ? 'active' : ''}`}>My Prompts</Link>
                     <Link to='/stories' className={`nav__link nav-item nav-link ${currentPath?.startsWith?.('/stories') ? 'active' : ''}`}>Stories</Link>
                     <Link to='/prompts' className={`nav__link nav-item nav-link ${currentPath?.startsWith?.('/prompts') ? 'active' : ''}`}>Prompts</Link>
-                    {renderUserForm()}
+                    {renderUserButton()}
                 </div>
             </div>
         </nav>
