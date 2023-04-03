@@ -89,7 +89,7 @@ setIHaveReview, deleteReview, setReviewValue}) {
         {
           isMyReview &&
           <button className="button button--red" onClick={() => deleteReview()}>
-              DELETE
+              Delete
           </button>
         }
         

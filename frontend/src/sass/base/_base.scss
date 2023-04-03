@@ -76,14 +76,17 @@ form {
   cursor: pointer;
   border-radius: 0.5rem;
   border: solid 0.15rem black;
-  @include btn-solid($color-brand-yellow-light);
-  
-  &.button--red {
-    @include btn-solid($color-brand-red-light);
-  }
 
-  &.button--green {
-    @include btn-solid($color-brand-green-light);
+  &:not(:disabled) {
+    @include btn-solid($color-brand-yellow-light);
+    
+    &.button--red {
+      @include btn-solid($color-brand-red-light);
+    }
+  
+    &.button--green {
+      @include btn-solid($color-brand-green-light);
+    }
   }
 }
 
