@@ -9,7 +9,7 @@ The following tutorial (starting at 8:39—"Downloading MySQL") shows how to ins
 Note that the .env file in the project assumes that there is no password required to access the database.
 
 ## Creating database and generating random data
-1. In the /backend direction, open the .env file.
+1. In the /backend directory, open the .env file.
 2. Change CREATE_DB to from false to true. This will cause the backend code to recreate and repopulate the database when the code is run.
 3. Follow **Instructions** below.
 
