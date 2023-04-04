@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import { SerialNoProvider } from './contexts/SerialNoContext';
 
 import Nav from './components/Nav';
+import Footer from './components/Footer';
 import HomePage from './components/HomePage';
 import StoriesPage from './components/StoriesPage';
 import StoryPage from './components/StoryPage';
@@ -46,6 +47,7 @@ function App() {
               <Route path="/my-prompts" exact render={() => <PromptsPage showOnlyMine key={'my-prompts'} />} />
               <Route path="/prompts" exact component={PromptsPage} />
             </Switch>
+            <Footer />
         </div>
       </Router>
     </SerialNoProvider>

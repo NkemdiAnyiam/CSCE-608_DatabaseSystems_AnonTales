@@ -21,6 +21,7 @@ body {
   font-size: 1.4rem;
   line-height: 1.2;
   background-color: $color-violet-darkest;
+  min-height: 100vh;
 }
 
 form {
@@ -110,4 +111,5 @@ form {
 
 .page {
   padding: 2rem;
+  padding-bottom: 10rem;
 }
